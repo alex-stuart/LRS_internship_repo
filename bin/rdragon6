@@ -1,0 +1,115 @@
+#!/bin/sh
+#
+# author : A. Hebert
+# use    : rdragon <file.x2m> [<compiler>] [-w]
+# note   : <file.x2m> must be located on directory ./data/
+#          If <file.access> exists, it is executed; otherwise,
+#          draglib.access and wimslib.access are executed.
+#          <compiler> is the compiler used to generate the executable
+#          -w     to execute in console
+#          -quiet quiet execution for regression testing
+#
+if [ $# = 0 ]
+   then
+   echo "usage: rdragon file [absoft]" 1>&2
+   exit 1
+fi
+System=`uname -s`
+Sysx="`echo $System | cut -b -6`"
+if [ $Sysx = "CYGWIN" ]; then
+   MACH=`uname -o`
+elif [ $Sysx = "AIX" ]; then
+   MACH=`uname -s`
+else
+   MACH=`uname -sm | sed 's/[ ]/_/'`
+fi
+
+xxx=0
+term=0
+quiet=0
+log=0
+for param in $*
+do
+   case $param in
+      -w) echo Execute in terminal
+          term=1
+          ;;
+      -quiet)
+          quiet=1
+          ;;
+      *) if [ $log = 0 ]; then
+            xxx=`basename $param .x2m`
+            log=1
+            data=$param
+            typ='custom'
+         else
+            typ=$param
+         fi ;;
+   esac
+done
+Code=Dragon5
+
+if [ $quiet = 0 ]; then
+  echo 'execute' $xxx 'with' $Code 'on system' $MACH 'with' $typ 'compiler'
+fi
+
+CodeDir=$PWD
+Tmpdir=$PWD
+
+libName=$(grep -om 1 '".*"' templateASSBLY.x2m | tr -d '"')
+
+if cmp  --silent -- Geo_SS.c2m Geo_SSNP.c2m; then
+  if [ "$(cat Mix_UOX.c2m | awk 'NR==80')" = "MIX 3 565.0" ]; then
+    prob="2A"
+  elif [ "$(cat Mix_UOX.c2m | awk 'NR==80')" = "MIX 3 600.0" ]; then
+    prob="2B"
+  elif [ "$(cat Mix_UOX.c2m | awk 'NR==80')" = "MIX 3 900.0" ]; then
+    prob="2C"
+  elif [ "$(cat Mix_UOX.c2m | awk 'NR==80')" = "MIX 3 1200.0" ]; then
+    prob="2D"
+  fi
+elif cmp  --silent -- Geo_SS.c2m Geo_SS12P.c2m; then
+  prob="2E"
+elif cmp  --silent -- Geo_SS.c2m Geo_SSA.c2m; then
+  prob="2G"
+elif cmp  --silent -- Geo_SS.c2m Geo_SSB.c2m; then
+  prob="2H"
+elif cmp  --silent -- Geo_SS.c2m Geo_SSIT.c2m; then
+  prob="2I"
+elif cmp  --silent -- Geo_SS.c2m Geo_SS12G.c2m; then
+  prob="2O"
+elif cmp  --silent -- Geo_SS.c2m Geo_SS24G.c2m; then
+  prob="2P"
+fi
+
+#Libdir=$Tmpdir/assemblies/$libName
+#if [ "$prob" = "2A" ]; then
+#  mkdir $Libdir
+#fi
+Rundir=$Tmpdir/results/assemblies/$libName/rundir$prob
+#Rundir=$Tmpdir/ENDF70_295_1L_corr/rundir$prob
+#Rundir=$Tmpdir/rundir$prob
+mkdir $Rundir
+if [ $quiet = 0 ]; then
+  echo "RunDirectory:" $Rundir
+fi
+cd $Rundir
+cp ../../../../$data ./
+#cp ../../$data ./
+#cp ../$data ./
+cp ~/bin/Dragon5_include/$Code ./Dragon5
+cp ~/bin/Dragon5_include/assertS.c2m ./
+cp ~/bin/Dragon5_include/assertV.c2m ./
+cp ~/dragon/Geo_N1.c2m ./
+cp ~/dragon/Geo_N2.c2m ./
+cp ~/dragon/Geo_SS.c2m ./
+cp ~/dragon/Geo_SS_1L.c2m ./
+cp ~/dragon/Mix_UOX.c2m ./
+cp ~/dragon/Mix_UOX_1L.c2m ./
+cp ~/dragon/MultLIBEQ.c2m ./
+cp -d ~/bin/Dragon5_include/* ./
+./Dragon5 <$data >$xxx.result
+cp $xxx.result ../../../../
+cd ../../../..
+#cp $xxx.result ../
+#cd ..

@@ -1,0 +1,78 @@
+#!/bin/sh
+#
+# author : A. Hebert
+# use    : rdragon <file.x2m> [<compiler>] [-w]
+# note   : <file.x2m> must be located on directory ./data/
+#          If <file.access> exists, it is executed; otherwise,
+#          draglib.access and wimslib.access are executed.
+#          <compiler> is the compiler used to generate the executable
+#          -w     to execute in console
+#          -quiet quiet execution for regression testing
+#
+if [ $# = 0 ]
+   then
+   echo "usage: rdragon file [absoft]" 1>&2
+   exit 1
+fi
+System=`uname -s`
+Sysx="`echo $System | cut -b -6`"
+if [ $Sysx = "CYGWIN" ]; then
+   MACH=`uname -o`
+elif [ $Sysx = "AIX" ]; then
+   MACH=`uname -s`
+else
+   MACH=`uname -sm | sed 's/[ ]/_/'`
+fi
+
+xxx=0
+term=0
+quiet=0
+log=0
+
+for param in $*
+do
+   case $param in
+      -w) echo Execute in terminal
+          term=1
+          ;;
+      -quiet)
+          quiet=1
+          ;;
+      *) if [ $log = 0 ]; then
+            xxx=`basename $param .x2m`
+            log=1
+            data=$param
+            typ='custom'
+         else
+            typ=$param
+         fi ;;
+   esac
+done
+Code=Dragon5
+
+if [ $quiet = 0 ]; then
+  echo 'execute' $xxx 'with' $Code 'on system' $MACH 'with' $typ 'compiler'
+fi
+
+CodeDir=$PWD
+Tmpdir=$PWD
+inum=1
+while [ -d $Tmpdir/rundir$inum ]
+  do 
+  inum=`expr $inum + 1 `
+done
+Rundir=$Tmpdir/rundir$inum
+mkdir $Rundir
+if [ $quiet = 0 ]; then
+  echo "RunDirectory:" $Rundir
+fi
+cd $Rundir
+cp ../$data ./
+cp ~/bin/Dragon5_include/$Code ./Dragon5
+cp ~/bin/Dragon5_include/assertS.c2m ./
+cp ~/bin/Dragon5_include/assertV.c2m ./
+cp -d ~/bin/Dragon5_include/* ./
+./Dragon5 <$data >$xxx.result
+cp $xxx.result ../
+#rm -rf $Rundir
+cd ..
