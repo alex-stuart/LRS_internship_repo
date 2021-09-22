@@ -1,0 +1,313 @@
+* CLE-2000 VERS 3.0 * R.ROY, EPM COPYRIGHT 1999 *                          LINE
+************************************************************************   0001
+*  DECK MultLIBEQ                                                      *   0002
+*                                                                      *   0003
+*  Name          : MultLIBEQ.c2m                                       *   0004
+*  Type          : DRAGON procedure                                    *   0005
+*  Use           : Increase the number of mixes in the microlib        *   0006
+*  Author        : A. Canbakan                                         *   0007
+*                                                                      *   0008
+*  Procedure called as:                                                *   0009
+*                                                                      *   0010
+*  LIBEQ := MultLIBEQ_32 LIBEQ ;                                       *   0011
+*                                                                      *   0012
+*  Input data   :                                                      *   0013
+*    LIBEQ      : Microlib with the number of mixs of the 1st level    *   0014
+*                                                                      *   0015
+*  Output data  :                                                      *   0016
+*    LIBEQ      : Microlib with the number of mixs of the 2nd level    *   0017
+************************************************************************   0018
+PARAMETER  LIBEQ  ::                                                       0019
+EDIT 0                                                                     0020
+::: LINKED_LIST LIBEQ  ;                                                   0021
+;                                                                          0022
+MODULE LIB: END: ;                                                         0023
+LIBEQ := LIB: LIBEQ ::                                                     0024
+EDIT 0                                                                     0025
+NMIX 161                                                                   0026
+DEPL LIB: DRAGON FIL: LIBEQ                                                0027
+MIXS LIB: MICROLIB FIL: LIBEQ                                              0028
+! C0301 C1                                                                 0029
+MIX 13                                                                     0030
+COMB 3 1.0                                                                 0031
+MIX 14                                                                     0032
+COMB 4 1.0                                                                 0033
+MIX 15                                                                     0034
+COMB 5 1.0                                                                 0035
+MIX 16                                                                     0036
+COMB 6 1.0                                                                 0037
+! C0302 C2                                                                 0038
+MIX 17                                                                     0039
+COMB 9 1.0                                                                 0040
+MIX 18                                                                     0041
+COMB 10 1.0                                                                0042
+MIX 19                                                                     0043
+COMB 11 1.0                                                                0044
+MIX 20                                                                     0045
+COMB 12 1.0                                                                0046
+! C0303 C2                                                                 0047
+MIX 21                                                                     0048
+COMB 9 1.0                                                                 0049
+MIX 22                                                                     0050
+COMB 10 1.0                                                                0051
+MIX 23                                                                     0052
+COMB 11 1.0                                                                0053
+MIX 24                                                                     0054
+COMB 12 1.0                                                                0055
+! C0402 C1                                                                 0056
+MIX 26                                                                     0057
+COMB 3 1.0                                                                 0058
+MIX 27                                                                     0059
+COMB 4 1.0                                                                 0060
+MIX 28                                                                     0061
+COMB 5 1.0                                                                 0062
+MIX 29                                                                     0063
+COMB 6 1.0                                                                 0064
+! C0403 C1                                                                 0065
+MIX 30                                                                     0066
+COMB 3 1.0                                                                 0067
+MIX 31                                                                     0068
+COMB 4 1.0                                                                 0069
+MIX 32                                                                     0070
+COMB 5 1.0                                                                 0071
+MIX 33                                                                     0072
+COMB 6 1.0                                                                 0073
+! C0501 C1                                                                 0074
+MIX 34                                                                     0075
+COMB 3 1.0                                                                 0076
+MIX 35                                                                     0077
+COMB 4 1.0                                                                 0078
+MIX 36                                                                     0079
+COMB 5 1.0                                                                 0080
+MIX 37                                                                     0081
+COMB 6 1.0                                                                 0082
+! C0502 C2                                                                 0083
+MIX 38                                                                     0084
+COMB 9 1.0                                                                 0085
+MIX 39                                                                     0086
+COMB 10 1.0                                                                0087
+MIX 40                                                                     0088
+COMB 11 1.0                                                                0089
+MIX 41                                                                     0090
+COMB 12 1.0                                                                0091
+! C0503 C2                                                                 0092
+MIX 42                                                                     0093
+COMB 9 1.0                                                                 0094
+MIX 43                                                                     0095
+COMB 10 1.0                                                                0096
+MIX 44                                                                     0097
+COMB 11 1.0                                                                0098
+MIX 45                                                                     0099
+COMB 12 1.0                                                                0100
+! C0504 C1                                                                 0101
+MIX 46                                                                     0102
+COMB 3 1.0                                                                 0103
+MIX 47                                                                     0104
+COMB 4 1.0                                                                 0105
+MIX 48                                                                     0106
+COMB 5 1.0                                                                 0107
+MIX 49                                                                     0108
+COMB 6 1.0                                                                 0109
+! C0505 C2                                                                 0110
+MIX 50                                                                     0111
+COMB 9 1.0                                                                 0112
+MIX 51                                                                     0113
+COMB 10 1.0                                                                0114
+MIX 52                                                                     0115
+COMB 11 1.0                                                                0116
+MIX 53                                                                     0117
+COMB 12 1.0                                                                0118
+! C0601 C1                                                                 0119
+MIX 54                                                                     0120
+COMB 3 1.0                                                                 0121
+MIX 55                                                                     0122
+COMB 4 1.0                                                                 0123
+MIX 56                                                                     0124
+COMB 5 1.0                                                                 0125
+MIX 57                                                                     0126
+COMB 6 1.0                                                                 0127
+! C0602 C2                                                                 0128
+MIX 58                                                                     0129
+COMB 9 1.0                                                                 0130
+MIX 59                                                                     0131
+COMB 10 1.0                                                                0132
+MIX 60                                                                     0133
+COMB 11 1.0                                                                0134
+MIX 61                                                                     0135
+COMB 12 1.0                                                                0136
+! C0603 C2                                                                 0137
+MIX 62                                                                     0138
+COMB 9 1.0                                                                 0139
+MIX 63                                                                     0140
+COMB 10 1.0                                                                0141
+MIX 64                                                                     0142
+COMB 11 1.0                                                                0143
+MIX 65                                                                     0144
+COMB 12 1.0                                                                0145
+! C0604 C1                                                                 0146
+MIX 66                                                                     0147
+COMB 3 1.0                                                                 0148
+MIX 67                                                                     0149
+COMB 4 1.0                                                                 0150
+MIX 68                                                                     0151
+COMB 5 1.0                                                                 0152
+MIX 69                                                                     0153
+COMB 6 1.0                                                                 0154
+! C0605 C1                                                                 0155
+MIX 70                                                                     0156
+COMB 3 1.0                                                                 0157
+MIX 71                                                                     0158
+COMB 4 1.0                                                                 0159
+MIX 72                                                                     0160
+COMB 5 1.0                                                                 0161
+MIX 73                                                                     0162
+COMB 6 1.0                                                                 0163
+! C0702 C1                                                                 0164
+MIX 74                                                                     0165
+COMB 3 1.0                                                                 0166
+MIX 75                                                                     0167
+COMB 4 1.0                                                                 0168
+MIX 76                                                                     0169
+COMB 5 1.0                                                                 0170
+MIX 77                                                                     0171
+COMB 6 1.0                                                                 0172
+! C0703 C1                                                                 0173
+MIX 78                                                                     0174
+COMB 3 1.0                                                                 0175
+MIX 79                                                                     0176
+COMB 4 1.0                                                                 0177
+MIX 80                                                                     0178
+COMB 5 1.0                                                                 0179
+MIX 81                                                                     0180
+COMB 6 1.0                                                                 0181
+! C0705 C1                                                                 0182
+MIX 82                                                                     0183
+COMB 3 1.0                                                                 0184
+MIX 83                                                                     0185
+COMB 4 1.0                                                                 0186
+MIX 84                                                                     0187
+COMB 5 1.0                                                                 0188
+MIX 85                                                                     0189
+COMB 6 1.0                                                                 0190
+! C0706 C1                                                                 0191
+MIX 86                                                                     0192
+COMB 3 1.0                                                                 0193
+MIX 87                                                                     0194
+COMB 4 1.0                                                                 0195
+MIX 88                                                                     0196
+COMB 5 1.0                                                                 0197
+MIX 89                                                                     0198
+COMB 6 1.0                                                                 0199
+! C0707 C2                                                                 0200
+MIX 90                                                                     0201
+COMB 9 1.0                                                                 0202
+MIX 91                                                                     0203
+COMB 10 1.0                                                                0204
+MIX 92                                                                     0205
+COMB 11 1.0                                                                0206
+MIX 93                                                                     0207
+COMB 12 1.0                                                                0208
+! C0801 C4                                                                 0209
+! C0802 C2                                                                 0210
+MIX 98                                                                     0211
+COMB 9 1.0                                                                 0212
+MIX 99                                                                     0213
+COMB 10 1.0                                                                0214
+MIX 100                                                                    0215
+COMB 11 1.0                                                                0216
+MIX 101                                                                    0217
+COMB 12 1.0                                                                0218
+! C0803 C2                                                                 0219
+MIX 102                                                                    0220
+COMB 9 1.0                                                                 0221
+MIX 103                                                                    0222
+COMB 10 1.0                                                                0223
+MIX 104                                                                    0224
+COMB 11 1.0                                                                0225
+MIX 105                                                                    0226
+COMB 12 1.0                                                                0227
+! C0804 C4                                                                 0228
+MIX 106                                                                    0229
+COMB 94 1.0                                                                0230
+MIX 107                                                                    0231
+COMB 95 1.0                                                                0232
+MIX 108                                                                    0233
+COMB 96 1.0                                                                0234
+MIX 109                                                                    0235
+COMB 97 1.0                                                                0236
+! C0805 C2                                                                 0237
+MIX 110                                                                    0238
+COMB 9 1.0                                                                 0239
+MIX 111                                                                    0240
+COMB 10 1.0                                                                0241
+MIX 112                                                                    0242
+COMB 11 1.0                                                                0243
+MIX 113                                                                    0244
+COMB 12 1.0                                                                0245
+! C0807 C3                                                                 0246
+MIX 118                                                                    0247
+COMB 114 1.0                                                               0248
+MIX 119                                                                    0249
+COMB 115 1.0                                                               0250
+MIX 120                                                                    0251
+COMB 116 1.0                                                               0252
+MIX 121                                                                    0253
+COMB 117 1.0                                                               0254
+! C0902 C6                                                                 0255
+MIX 130                                                                    0256
+COMB 126 1.0                                                               0257
+MIX 131                                                                    0258
+COMB 127 1.0                                                               0259
+MIX 132                                                                    0260
+COMB 128 1.0                                                               0261
+MIX 133                                                                    0262
+COMB 129 1.0                                                               0263
+! C0903 C6                                                                 0264
+MIX 134                                                                    0265
+COMB 126 1.0                                                               0266
+MIX 135                                                                    0267
+COMB 127 1.0                                                               0268
+MIX 136                                                                    0269
+COMB 128 1.0                                                               0270
+MIX 137                                                                    0271
+COMB 129 1.0                                                               0272
+! C0904 C6                                                                 0273
+MIX 138                                                                    0274
+COMB 126 1.0                                                               0275
+MIX 139                                                                    0276
+COMB 127 1.0                                                               0277
+MIX 140                                                                    0278
+COMB 128 1.0                                                               0279
+MIX 141                                                                    0280
+COMB 129 1.0                                                               0281
+! C0905 C6                                                                 0282
+MIX 142                                                                    0283
+COMB 126 1.0                                                               0284
+MIX 143                                                                    0285
+COMB 127 1.0                                                               0286
+MIX 144                                                                    0287
+COMB 128 1.0                                                               0288
+MIX 145                                                                    0289
+COMB 129 1.0                                                               0290
+! C0906 C6                                                                 0291
+MIX 146                                                                    0292
+COMB 126 1.0                                                               0293
+MIX 147                                                                    0294
+COMB 127 1.0                                                               0295
+MIX 148                                                                    0296
+COMB 128 1.0                                                               0297
+MIX 149                                                                    0298
+COMB 129 1.0                                                               0299
+! C0907 C6                                                                 0300
+MIX 150                                                                    0301
+COMB 126 1.0                                                               0302
+MIX 151                                                                    0303
+COMB 127 1.0                                                               0304
+MIX 152                                                                    0305
+COMB 128 1.0                                                               0306
+MIX 153                                                                    0307
+COMB 129 1.0                                                               0308
+;                                                                          0309
+END: ;                                                                     0310
+QUIT .                                                                     0311
+ 

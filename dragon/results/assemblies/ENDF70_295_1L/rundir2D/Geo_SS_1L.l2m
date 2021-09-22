@@ -1,0 +1,209 @@
+* CLE-2000 VERS 3.0 * R.ROY, EPM COPYRIGHT 1999 *                          LINE
+*DECK Geo_SS                                                               0001
+*----                                                                      0002
+*  Name          : Geo_SS.c2m                                              0003
+*  Type          : DRAGON procedure                                        0004
+*  Use           : Geometry generation for Self-Shielding Calculation      0005
+*                  of the CASEA assembly                                   0006
+*  Author        : A. Canbakan                                             0007
+*                                                                          0008
+*  Procedure called as:                                                    0009
+*                                                                          0010
+*GEOSS := Geo_SS :: <<Rcomb1>> <<Rcomb2>> <<Rcomb3>> <<Rcomb4>>            0011
+*                   <<R_int_TG>> <<R_ext_TG>> <<R_int_TI>>                 0012
+*                   <<R_ext_TI>> <<R_int_G>> <<R_ext_G>> <<Cote>>          0013
+*                   <<CoteL>> ;                                            0014
+*                                                                          0015
+*  Input data   :                                                          0016
+*    Rcomb1     :  50/100 of outer radius of fuel (cm)                     0017
+*    Rcomb2     :  80/100 of outer radius of fuel (cm)                     0018
+*    Rcomb3     :  95/100 of outer radius of fuel (cm)                     0019
+*    Rcomb4     : 100/100 of outer radius of fuel (cm)                     0020
+*    R_int_TG   : Inner radius of cladding of guide tube (cm)              0021
+*    R_ext_TG   : Outer radius of cladding of guide tube (cm)              0022
+*    R_int_TI   : Inner radius of cladding of guide tube (cm)              0023
+*    R_ext_TI   : Outer radius of cladding of guide tube (cm)              0024
+*    R_int_G    : Inner radius of cladding of fuel tube (cm)               0025
+*    R_ext_G    : Outer radius of cladding of fuel tube (cm)               0026
+*    Cote       : Lattice pitch (cm)                                       0027
+*    CoteL      : Lattice pitch + Water space (cm)                         0028
+*                                                                          0029
+*  Output data  :                                                          0030
+*    GEOSS      : Geometry for Self-Shielding Calculation                  0031
+PARAMETER  GEOSS  ::                                                       0032
+EDIT 0                                                                     0033
+::: LINKED_LIST GEOSS  ;                                                   0034
+;                                                                          0035
+*----                                                                      0036
+*  Modules used in this procedure                                          0037
+*----                                                                      0038
+MODULE  GEO: END: ;                                                        0039
+*----                                                                      0040
+*  Input data recovery                                                     0041
+*----                                                                      0042
+*                                                                      ;   0043
+REAL Rcomb1       Rcomb2       Rcomb3       Rcomb4     ;                   0044
+:: >>Rcomb1<<   >>Rcomb2<<   >>Rcomb3<<   >>Rcomb4<<   ;                   0045
+REAL R_int_TG     R_ext_TG     R_int_TI     R_ext_TI   ;                   0046
+:: >>R_int_TG<< >>R_ext_TG<< >>R_int_TI<< >>R_ext_TI<< ;                   0047
+REAL R_int_G      R_ext_G      Cote         CoteL      ;                   0048
+:: >>R_int_G<<  >>R_ext_G<<  >>Cote<<     >>CoteL<<    ;                   0049
+GEOSS := GEO: :: CAR2D 9 9                                                 0050
+EDIT 0                                                                     0051
+X- DIAG X+ REFL                                                            0052
+Y- SYME Y+ DIAG                                                            0053
+CELL                                                                       0054
+TI C0201 C0301     TG  C0501  C0601     TG   C0801 C0901                   0055
+C0202 C0302  C0402  C0502  C0602  C0702   C0802 C0902                      0056
+C0303  C0403  C0503  C0603  C0703   C0803 C0903                            0057
+TG  C0504  C0604     TG   C0804 C0904                                      0058
+C0505  C0605  C0705   C0805 C0905                                          0059
+TG  C0706   C0806 C0906                                                    0060
+C0707   C0807 C0907                                                        0061
+C0808 C0908                                                                0062
+C0909                                                                      0063
+::: C0201 := GEO: CARCEL 6                                                 0064
+MESHX 0.0 <<Cote>>                                                         0065
+MESHY 0.0 <<Cote>>                                                         0066
+RADIUS 0.0 <<Rcomb1>> <<Rcomb2>> <<Rcomb3>> <<Rcomb4>>                     0067
+<<R_int_G>> <<R_ext_G>>                                                    0068
+MIX  3 4 5 6   7 8 1                                                       0069
+;                                                                          0070
+::: C0202 := GEO: C0201                                                    0071
+MIX 9 10 11 12   7 8 1                                                     0072
+;                                                                          0073
+::: C0301 := GEO: C0201                                                    0074
+MIX 13 14 15 16   7 8 1                                                    0075
+;                                                                          0076
+::: C0302 := GEO: C0201                                                    0077
+MIX 17 18 19 20   7 8 1                                                    0078
+;                                                                          0079
+::: C0303 := GEO: C0201                                                    0080
+MIX 21 22 23 24   7 8 1                                                    0081
+;                                                                          0082
+::: C0402 := GEO: C0201                                                    0083
+MIX 26 27 28 29   7 8 1                                                    0084
+;                                                                          0085
+::: C0403 := GEO: C0201                                                    0086
+MIX 30 31 32 33   7 8 1                                                    0087
+;                                                                          0088
+::: C0501 := GEO: C0201                                                    0089
+MIX 34 35 36 37   7 8 1                                                    0090
+;                                                                          0091
+::: C0502 := GEO: C0201                                                    0092
+MIX 38 39 40 41   7 8 1                                                    0093
+;                                                                          0094
+::: C0503 := GEO: C0201                                                    0095
+MIX 42 43 44 45   7 8 1                                                    0096
+;                                                                          0097
+::: C0504 := GEO: C0201                                                    0098
+MIX 46 47 48 49   7 8 1                                                    0099
+;                                                                          0100
+::: C0505 := GEO: C0201                                                    0101
+MIX 50 51 52 53   7 8 1                                                    0102
+;                                                                          0103
+::: C0601 := GEO: C0201                                                    0104
+MIX 54 55 56 57   7 8 1                                                    0105
+;                                                                          0106
+::: C0602 := GEO: C0201                                                    0107
+MIX 58 59 60 61   7 8 1                                                    0108
+;                                                                          0109
+::: C0603 := GEO: C0201                                                    0110
+MIX 62 63 64 65   7 8 1                                                    0111
+;                                                                          0112
+::: C0604 := GEO: C0201                                                    0113
+MIX 66 67 68 69   7 8 1                                                    0114
+;                                                                          0115
+::: C0605 := GEO: C0201                                                    0116
+MIX 70 71 72 73   7 8 1                                                    0117
+;                                                                          0118
+::: C0702 := GEO: C0201                                                    0119
+MIX 74 75 76 77   7 8 1                                                    0120
+;                                                                          0121
+::: C0703 := GEO: C0201                                                    0122
+MIX 78 79 80 81   7 8 1                                                    0123
+;                                                                          0124
+::: C0705 := GEO: C0201                                                    0125
+MIX 82 83 84 85   7 8 1                                                    0126
+;                                                                          0127
+::: C0706 := GEO: C0201                                                    0128
+MIX 86 87 88 89   7 8 1                                                    0129
+;                                                                          0130
+::: C0707 := GEO: C0201                                                    0131
+MIX 90 91 92 93   7 8 1                                                    0132
+;                                                                          0133
+::: C0801 := GEO: C0201                                                    0134
+MIX 94 95 96 97   7 8 1                                                    0135
+;                                                                          0136
+::: C0802 := GEO: C0201                                                    0137
+MIX 98 99 100 101   7 8 1                                                  0138
+;                                                                          0139
+::: C0803 := GEO: C0201                                                    0140
+MIX 102 103 104 105   7 8 1                                                0141
+;                                                                          0142
+::: C0804 := GEO: C0201                                                    0143
+MIX 106 107 108 109   7 8 1                                                0144
+;                                                                          0145
+::: C0805 := GEO: C0201                                                    0146
+MIX 110 111 112 113   7 8 1                                                0147
+;                                                                          0148
+::: C0806 := GEO: C0201                                                    0149
+MIX 114 115 116 117    7 8 1                                               0150
+;                                                                          0151
+::: C0807 := GEO: C0201                                                    0152
+MIX 118 119 120 121    7 8 1                                               0153
+;                                                                          0154
+::: C0808 := GEO: C0201                                                    0155
+MIX 122 123 124 125   7 8 1                                                0156
+;                                                                          0157
+::: C0901 := GEO: CARCEL 6                                                 0158
+MESHX 0.0 <<CoteL>>                                                        0159
+MESHY 0.0 <<Cote>>                                                         0160
+RADIUS 0.0 <<Rcomb1>> <<Rcomb2>> <<Rcomb3>> <<Rcomb4>>                     0161
+<<R_int_G>> <<R_ext_G>>                                                    0162
+MIX 126 127 128 129   7 8 1                                                0163
+;                                                                          0164
+::: C0902 := GEO: C0901                                                    0165
+MIX 130 131 132 133   7 8 1                                                0166
+;                                                                          0167
+::: C0903 := GEO: C0901                                                    0168
+MIX 134 135 136 137   7 8 1                                                0169
+;                                                                          0170
+::: C0904 := GEO: C0901                                                    0171
+MIX 138 139 140 141   7 8 1                                                0172
+;                                                                          0173
+::: C0905 := GEO: C0901                                                    0174
+MIX 142 143 144 145   7 8 1                                                0175
+;                                                                          0176
+::: C0906 := GEO: C0901                                                    0177
+MIX 146 147 148 149   7 8 1                                                0178
+;                                                                          0179
+::: C0907 := GEO: C0901                                                    0180
+MIX 150 151 152 153   7 8 1                                                0181
+;                                                                          0182
+::: C0908 := GEO: C0901                                                    0183
+MIX 154 155 156 157   7 8 1                                                0184
+;                                                                          0185
+::: C0909 := GEO: CARCEL 6                                                 0186
+MESHX 0.0 <<CoteL>>                                                        0187
+MESHY 0.0 <<CoteL>>                                                        0188
+RADIUS 0.0 <<Rcomb1>> <<Rcomb2>> <<Rcomb3>> <<Rcomb4>>                     0189
+<<R_int_G>> <<R_ext_G>>                                                    0190
+MIX 158 159 160 161   7 8 1                                                0191
+;                                                                          0192
+::: TG := GEO: CARCEL 2                                                    0193
+MESHX 0.0 <<Cote>>                                                         0194
+MESHY 0.0 <<Cote>>                                                         0195
+RADIUS 0.0 <<R_int_TG>> <<R_ext_TG>>                                       0196
+MIX 1 25 1                                                                 0197
+;                                                                          0198
+::: TI := GEO: CARCEL 2                                                    0199
+MESHX 0.0 <<Cote>>                                                         0200
+MESHY 0.0 <<Cote>>                                                         0201
+RADIUS 0.0 <<R_int_TI>> <<R_ext_TI>>                                       0202
+MIX 1 2 1                                                                  0203
+;                                                                          0204
+;                                                                          0205
+END: ;                                                                     0206
+QUIT .                                                                     0207
+ 

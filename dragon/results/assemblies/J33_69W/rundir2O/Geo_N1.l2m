@@ -1,0 +1,140 @@
+* CLE-2000 VERS 3.0 * R.ROY, EPM COPYRIGHT 1999 *                          LINE
+************************************************************************   0001
+*  DECK Geo_N1                                                         *   0002
+*                                                                      *   0003
+*  Name          : Geo_N1.c2m                                          *   0004
+*  Type          : DRAGON procedure                                    *   0005
+*  Use           : Geometry generation for 1st Level Flux Calculation  *   0006
+*                  of the CASEA assembly                               *   0007
+*  Author        : A. Canbakan                                         *   0008
+*                                                                      *   0009
+*  Procedure called as:                                                *   0010
+*                                                                      *   0011
+*GEON1 := Geo_N1 :: <<Rcomb1>> <<Rcomb2>> <<Rcomb3>> <<Rcomb4>>        *   0012
+*                   <<R_int_TG>> <<R_ext_TG>> <<R_int_TI>>             *   0013
+*                   <<R_ext_TI>> <<R_int_G>> <<R_ext_G>> <<Cote>>      *   0014
+*                   <<CoteL>> <<RmodeN1>> ;                            *   0015
+*                                                                      *   0016
+*  Input data   :                                                      *   0017
+*    Rcomb1     :  50/100 of outer radius of fuel (cm)                 *   0018
+*    Rcomb2     :  80/100 of outer radius of fuel (cm)                 *   0019
+*    Rcomb3     :  95/100 of outer radius of fuel (cm)                 *   0020
+*    Rcomb4     : 100/100 of outer radius of fuel (cm)                 *   0021
+*    R_int_TG   : Inner radius of cladding of guide tube (cm)          *   0022
+*    R_ext_TG   : Outer radius of cladding of guide tube (cm)          *   0023
+*    R_int_TI   : Inner radius of cladding of guide tube (cm)          *   0024
+*    R_ext_TI   : Outer radius of cladding of guide tube (cm)          *   0025
+*    R_int_G    : Inner radius of cladding of fuel tube (cm)           *   0026
+*    R_ext_G    : Outer radius of cladding of fuel tube (cm)           *   0027
+*    Cote       : Lattice pitch (cm)                                   *   0028
+*    CoteL      : Lattice pitch + Water space (cm)                     *   0029
+*    RmodeN1    : Parameter for flux calculation in Level 1 (cm)       *   0030
+*                                                                      *   0031
+*  Output data  :                                                      *   0032
+*    GEON1      : Geometry for 1st Level Flux Calculation              *   0033
+************************************************************************   0034
+PARAMETER  GEON1  ::                                                       0035
+EDIT 0                                                                     0036
+::: LINKED_LIST GEON1  ;                                                   0037
+;                                                                          0038
+! Modules used in this procedure                                           0039
+MODULE  GEO: END: ;                                                        0040
+! Input data recovery                                                      0041
+REAL Rcomb1       Rcomb2       Rcomb3       Rcomb4     ;                   0042
+:: >>Rcomb1<<   >>Rcomb2<<   >>Rcomb3<<   >>Rcomb4<<   ;                   0043
+REAL R_int_TG     R_ext_TG     R_int_TI     R_ext_TI   ;                   0044
+:: >>R_int_TG<< >>R_ext_TG<< >>R_int_TI<< >>R_ext_TI<< ;                   0045
+REAL R_int_G      R_ext_G      Cote         CoteL      ;                   0046
+:: >>R_int_G<<  >>R_ext_G<<  >>Cote<<     >>CoteL<<    ;                   0047
+REAL RmodeN1   ;                                                           0048
+:: >>RmodeN1<< ;                                                           0049
+GEON1 := GEO: :: CAR2D 9 9                                                 0050
+EDIT 0                                                                     0051
+X- DIAG X+ REFL                                                            0052
+Y- SYME Y+ DIAG                                                            0053
+CELL TI C1 C1 TG C1 C1 TG C4 C6                                            0054
+C2 C2 C1 C2 C2 C1 C2 C6                                                    0055
+C2 C1  G C2 C1 C2 C6                                                       0056
+TG C1 C1 TG C4 C6                                                          0057
+C2 C1 C1 C2 C6                                                             0058
+TG C1 C3 C6                                                                0059
+G C3 C6                                                                    0060
+C5 C7                                                                      0061
+C8                                                                         0062
+MERGE 11 1  1 10  1  1  9  4  6                                            0063
+2  2  1  2  2  1  2  6                                                     0064
+2  1 12  2  1  2  6                                                        0065
+10  1  1  9  4  6                                                          0066
+2  1  1  2  6                                                              0067
+9  1  3  6                                                                 0068
+13  3  6                                                                   0069
+5  7                                                                       0070
+8                                                                          0071
+TURN  A  A  E  A  A  E  A  A  A                                            0072
+A  E  F  A  E  D  A  A                                                     0073
+C  B  G  C  H  G  A                                                        0074
+A  G  C  A  G  A                                                           0075
+A  B  D  A  A                                                              0076
+A  A  A  A                                                                 0077
+A  G  A                                                                    0078
+A  A                                                                       0079
+A                                                                          0080
+::: C1 := GEO: CARCEL 7                                                    0081
+MESHX 0.0 <<Cote>>                                                         0082
+MESHY 0.0 <<Cote>>                                                         0083
+RADIUS 0.0 <<Rcomb1>> <<Rcomb2>> <<Rcomb3>> <<Rcomb4>>                     0084
+<<R_int_G>> <<R_ext_G>> <<RmodeN1>>                                        0085
+MIX  3 4 5 6   7 8 1 1                                                     0086
+;                                                                          0087
+::: C2 := GEO: C1                                                          0088
+MIX 9 10 11 12   7 8 1 1                                                   0089
+;                                                                          0090
+::: C3 := GEO: C1                                                          0091
+MIX 114 115 116 117   7 8 1 1                                              0092
+;                                                                          0093
+::: C4 := GEO: C1                                                          0094
+MIX 94 95 96 97   7 8 1 1                                                  0095
+;                                                                          0096
+::: C5 := GEO: C1                                                          0097
+MIX 122 123 124 125   7 8 1 1                                              0098
+;                                                                          0099
+::: C6 := GEO: CARCEL 7                                                    0100
+MESHX 0.0 <<CoteL>>                                                        0101
+MESHY 0.0 <<Cote>>                                                         0102
+RADIUS 0.0 <<Rcomb1>> <<Rcomb2>> <<Rcomb3>> <<Rcomb4>>                     0103
+<<R_int_G>> <<R_ext_G>> <<RmodeN1>>                                        0104
+MIX 126 127 128 129   7 8 1 1                                              0105
+;                                                                          0106
+::: C7 := GEO: C6                                                          0107
+MIX 154 155 156 157   7 8 1 1                                              0108
+;                                                                          0109
+::: C8 := GEO: CARCEL 7                                                    0110
+MESHX 0.0 <<CoteL>>                                                        0111
+MESHY 0.0 <<CoteL>>                                                        0112
+RADIUS 0.0 <<Rcomb1>> <<Rcomb2>> <<Rcomb3>> <<Rcomb4>>                     0113
+<<R_int_G>> <<R_ext_G>> <<RmodeN1>>                                        0114
+MIX 158 159 160 161   7 8 1 1                                              0115
+;                                                                          0116
+::: TG := GEO: CARCEL 2                                                    0117
+MESHX 0.0 <<Cote>>                                                         0118
+MESHY 0.0 <<Cote>>                                                         0119
+RADIUS 0.0 <<R_int_TG>> <<R_ext_TG>>                                       0120
+MIX 1 25 1                                                                 0121
+;                                                                          0122
+::: TI := GEO: CARCEL 2                                                    0123
+MESHX 0.0 <<Cote>>                                                         0124
+MESHY 0.0 <<Cote>>                                                         0125
+RADIUS 0.0 <<R_int_TI>> <<R_ext_TI>>                                       0126
+MIX 1 2 1                                                                  0127
+;                                                                          0128
+::: G  := GEO: CARCEL 7                                                    0129
+MESHX 0.0 <<Cote>>                                                         0130
+MESHY 0.0 <<Cote>>                                                         0131
+RADIUS 0.0 <<Rcomb1>> <<Rcomb2>> <<Rcomb3>> <<Rcomb4>>                     0132
+<<R_int_G>> <<R_ext_G>> <<RmodeN1>>                                        0133
+MIX  170 171 172 173   7 8 1 1                                             0134
+;                                                                          0135
+;                                                                          0136
+END: ;                                                                     0137
+QUIT .                                                                     0138
+ 

@@ -1,0 +1,311 @@
+************************************************************************
+*  DECK Mix_UOX                                                        *
+*                                                                      *
+*  Name          : Mix_UOX.c2m                                         *
+*  Type          : DRAGON procedure                                    *
+*  Use           : Microlib generation with Draglibs for               *
+*                  UOX calculation with 37 fuel regions                *
+*  Author        : A. Canbakan                                         *
+*                                                                      *
+*  Procedure called as:                                                *
+*                                                                      *
+*  LIBRARY := Mix_UOX :: <<Library>> ;                                 *
+*                                                                      *
+*  Output data  :                                                      *
+*    LIBRARY    : Microlib with table of probabilities                 *
+************************************************************************
+
+PARAMETER  LIBRARY  ::
+       EDIT 0
+           ::: LINKED_LIST LIBRARY  ;
+   ;
+
+! Input data recovery
+
+STRING Library ;
+:: >>Library<< ;
+
+! Modules used in this procedure
+
+MODULE  LIB: UTL: DELETE: END: ABORT: ;
+
+LIBRARY := LIB: ::
+  EDIT 1
+  DEPL LIB: DRAGON FIL: <<Library>>
+  NMIX 173 CTRA NONE ANIS 1
+  SUBG
+  MIXS LIB: DRAGON FIL: <<Library>>
+
+  ! Moderator
+MIX 1 600.0
+   H1H2O    = 'H1_H2O'   0.0441707477267
+   O16H2O   = 'O16'   0.0220853738633
+   B10      = 'B10'   9.5253405E-06
+   B11      = 'B11'   3.83407762E-05
+
+  ! Cladding TI
+MIX 2 600.0
+    Zr90 = 'Zr90'   2.18865E-02
+    Zr91 = 'Zr91'   4.77292E-03
+    Zr92 = 'Zr92'   7.29551E-03
+    Zr94 = 'Zr94'   7.39335E-03
+    Zr96 = 'Zr96'   1.19110E-03
+    *Sn112 = 'Sn112'   4.68066E-06
+    *Sn114 = 'Sn114'   3.18478E-06
+    Sn115 = 'Sn115'   1.64064E-06
+    Sn116 = 'Sn116'   7.01616E-05
+    Sn117 = 'Sn117'   3.70592E-05
+    Sn118 = 'Sn118'   1.16872E-04
+    Sn119 = 'Sn119'   4.14504E-05
+    Sn120 = 'Sn120'   1.57212E-04
+    Sn122 = 'Sn122'   2.23417E-05
+    Sn124 = 'Sn124'   2.79392E-05
+    *Fe054 = 'Fe54'   8.68307E-06
+    Fe056 = 'Fe56'   1.36306E-04
+    Fe057 = 'Fe57'   3.14789E-06
+    Fe058 = 'Fe58'   4.18926E-07
+    *Cr050 = 'Cr50'   3.30121E-06
+    Cr052 = 'Cr52'   6.36606E-05
+    Cr053 = 'Cr53'   7.21860E-06
+    Cr054 = 'Cr54'   1.79686E-06
+    Hf174 = 'Hf174'   3.54138E-09
+    Hf176 = 'Hf176'   1.16423E-07
+    Hf177 = 'Hf177'   4.11686E-07
+    Hf178 = 'Hf178'   6.03806E-07
+    Hf179 = 'Hf179'   3.01460E-07
+    Hf180 = 'Hf180'   7.76449E-07
+
+  ! 3.1% Fuel -> 8 * 4 evolving mixes
+  ! C1 Cell
+MIX 3 1200.0
+    O16      = 'O16'   4.57642E-2
+    U234     = 'U234'    6.11864E-6
+    U235     = 'U235'   7.18132E-4 2
+    U238     = 'U238'   2.21546E-2 2
+    U236     = 'U236'   3.29861E-6
+  MIX 4
+    COMB 3 1.0
+  MIX 5
+    COMB 3 1.0
+  MIX 6
+    COMB 3 1.0
+
+  ! Gap
+  MIX 7 600.0 NOEV
+    O16      = 'O16'   3.76439E-6
+
+  ! Cladding
+MIX 8 600.0
+    Zr90 = 'Zr90'   2.18865E-02
+    Zr91 = 'Zr91'   4.77292E-03
+    Zr92 = 'Zr92'   7.29551E-03
+    Zr94 = 'Zr94'   7.39335E-03
+    Zr96 = 'Zr96'   1.19110E-03
+    *Sn112 = 'Sn112'   4.68066E-06
+    *Sn114 = 'Sn114'   3.18478E-06
+    Sn115 = 'Sn115'   1.64064E-06
+    Sn116 = 'Sn116'   7.01616E-05
+    Sn117 = 'Sn117'   3.70592E-05
+    Sn118 = 'Sn118'   1.16872E-04
+    Sn119 = 'Sn119'   4.14504E-05
+    Sn120 = 'Sn120'   1.57212E-04
+    Sn122 = 'Sn122'   2.23417E-05
+    Sn124 = 'Sn124'   2.79392E-05
+    *Fe054 = 'Fe54'   8.68307E-06
+    Fe056 = 'Fe56'   1.36306E-04
+    Fe057 = 'Fe57'   3.14789E-06
+    Fe058 = 'Fe58'   4.18926E-07
+    *Cr050 = 'Cr50'   3.30121E-06
+    Cr052 = 'Cr52'   6.36606E-05
+    Cr053 = 'Cr53'   7.21860E-06
+    Cr054 = 'Cr54'   1.79686E-06
+    Hf174 = 'Hf174'   3.54138E-09
+    Hf176 = 'Hf176'   1.16423E-07
+    Hf177 = 'Hf177'   4.11686E-07
+    Hf178 = 'Hf178'   6.03806E-07
+    Hf179 = 'Hf179'   3.01460E-07
+    Hf180 = 'Hf180'   7.76449E-07
+     
+  ! C2 Cell
+  MIX 9
+    COMB 3 1.0
+  MIX 10
+    COMB 3 1.0
+  MIX 11
+    COMB 3 1.0
+  MIX 12
+    COMB 3 1.0
+
+  ! Cladding TG
+  MIX 25
+    COMB 2 1.0
+
+  ! C4 Cell
+  MIX 94
+    COMB 3 1.0
+  MIX 95
+    COMB 3 1.0
+  MIX 96
+    COMB 3 1.0
+  MIX 97
+    COMB 3 1.0
+
+  ! C3 Cell
+  MIX 114
+    COMB 3 1.0
+  MIX 115
+    COMB 3 1.0
+  MIX 116
+    COMB 3 1.0
+  MIX 117
+    COMB 3 1.0
+
+  ! C5 Cell
+  MIX 122
+    COMB 3 1.0
+  MIX 123
+    COMB 3 1.0
+  MIX 124
+    COMB 3 1.0
+  MIX 125
+    COMB 3 1.0
+
+  ! C6 Cell
+  MIX 126
+    COMB 3 1.0
+  MIX 127
+    COMB 3 1.0
+  MIX 128
+    COMB 3 1.0
+  MIX 129
+    COMB 3 1.0
+
+  ! C7 Cell
+  MIX 154
+    COMB 3 1.0
+  MIX 155
+    COMB 3 1.0
+  MIX 156
+    COMB 3 1.0
+  MIX 157
+    COMB 3 1.0
+
+  ! C8 Cell
+  MIX 158
+    COMB 3 1.0
+  MIX 159
+    COMB 3 1.0
+  MIX 160
+    COMB 3 1.0
+  MIX 161
+    COMB 3 1.0
+  
+  ! 3.6% Fuel
+  MIX 162 900.0
+    O16      = 'O16'   4.57669E-2
+    U234     = 'U234'    7.21203E-6
+    U235     = 'U235'   8.33952E-4 1
+    U238     = 'U238'   2.20384E-2 1
+    U236     = 'U236'   3.82913E-6
+
+  ! Moderator 0.661g/cc
+  MIX 163 600.0 NOEV
+    H1H2O    = 'H1_H2O'   4.41459E-2
+    O16H2O   = 'O16'   2.20729E-2
+    B10      = 'B10'   9.52537E-6
+    B11      = 'B11'   3.83408E-5
+
+  ! Pyrex
+  MIX 164 600.0 NOEV
+    O16H2O   = 'O16'   4.67761E-2
+    B10      = 'B10'   9.63266-4
+    B11      = 'B11'   3.90172E-3
+    *Si28     = 'Si28'   1.81980E-02
+    *Si29     = 'Si29'   9.24474E-04
+    *Si30     = 'Si30'   6.10133E-04
+  
+  ! SS304
+  MIX 165 600.0 NOEV
+    C0 = 'C0'   3.20895E-04
+    *Si28 = 'Si28'   1.58197E-03
+    *Si29 = 'Si29'   8.03653E-05
+    *Si30 = 'Si30'   5.30394E-05
+    *P31 = 'P31'   6.99938E-05
+    *Cr050 = 'Cr50'   7.64915E-04
+    Cr052 = 'Cr52'   1.47506E-02
+    Cr053 = 'Cr53'   1.67260E-03
+    Cr054 = 'Cr54'   4.16346E-04
+    Mn055 = 'Mn55'   1.75387E-03
+    *Fe054 = 'Fe54'   3.44776E-03 
+    Fe056 = 'Fe56'   5.41225E-02
+    Fe057 = 'Fe57'   1.24992E-03
+    Fe058 = 'Fe58'   1.66342E-04
+    Ni058 = 'Ni58'   5.30854E-03
+    Ni060 = 'Ni60'   2.04484E-03
+    Ni061 = 'Ni61'   8.88879E-05
+    Ni062 = 'Ni62'   2.83413E-04
+    Ni064 = 'Ni64'   7.21770E-05
+
+  ! AIC
+  MIX 166 600.0 NOEV
+    Ag107 = 'Ag107'   2.36159E-02
+    Ag109 = 'Ag109'   2.19403E-02
+    *Cd106 = 'Cd106'   3.41523E-05
+    *Cd110 = 'Cd110'   3.41250E-04
+    Cd111 = 'Cd111'   3.49720E-04
+    Cd112 = 'Cd112'   6.59276E-04
+    Cd113 = 'Cd113'   3.33873E-04
+    Cd114 = 'Cd114'   7.84957E-04
+    Cd116 = 'Cd116'   2.04641E-04
+    In113 = 'In113'   3.44262E-04
+    In115 = 'In115'   7.68050E-03
+
+  ! B_4C 
+  MIX 167 600.0 NOEV
+    B10  = 'B10'   1.52689E-02
+    B11 = 'B11'   6.14591E-02
+    C0 = 'C0'   1.91820E-02
+
+  ! IFBA
+  MIX 168 600.0 NOEV   
+    B10 = 'B10'   2.16410E-02
+    B11 = 'B11'   1.96824E-02  
+    Zr90 = 'Zr90'   1.06304E-02
+    Zr91 = 'Zr91'   2.31824E-03
+    Zr92 = 'Zr92'   3.54348E-03
+    Zr94 = 'Zr94'   3.59100E-03
+    Zr96 = 'Zr96'   5.78528E-04
+
+  ! WABA
+  MIX 169 600.0 NOEV
+    B10  = 'B10'   2.98553E-03
+    B11 = 'B11'   1.21192E-02
+    C0 = 'C0'   3.77001E-03
+    O16 = 'O16'   5.85563E-02
+    Al27 = 'Al27'   3.90223E-02
+
+  ! Gadolinia
+  MIX 170 600.0 NOEV
+    O16      = 'O16'   4.53705E-2
+    U234     = 'U234'    3.18096E-6
+    U235     = 'U235'   3.90500E-4 1
+    U238     = 'U238'   2.10299E-2 1
+    U236     = 'U236'   1.79300E-6
+    *Gd152    = 'Gd152'   3.35960E-06
+    Gd154    = 'Gd154'   3.66190E-05
+    Gd155    = 'Gd155'   2.48606E-04
+    Gd156    = 'Gd156'   3.43849E-04
+    Gd157    = 'Gd157'   2.62884E-04
+    Gd158    = 'Gd158'   4.17255E-04
+    Gd160    = 'Gd160'   3.67198E-04
+
+  MIX 171
+    COMB 170 1.0
+  MIX 172
+    COMB 170 1.0
+  MIX 173
+    COMB 170 1.0
+;
+
+END: ;
+QUIT .
