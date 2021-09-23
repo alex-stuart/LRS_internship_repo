@@ -1,0 +1,10 @@
+Python Script Guide:
+
+dragonScript1KEFF.py is a script that calculates the KEFF value for a line of pincell input information as in inputFile.txt and returns a line of pincell output information
+dragonScriptKEFFfile.py runs dragonScript1KEFF.py on multiple cases such as those in inputFile.txt and returns a csv file of pincell output information lines
+runPins.py runs dragonScriptKEFFfile.py over a list of libraries given as lines in a .txt file such as the ones found in the dragon/Libs directory
+MultKEFF.py is a script that calculates the KEFF value for a line of assembly input information as in inputASSBLYFile1.txt or inputASSBLYFile.txt and returns a line of assembly output information
+MultKEFFfile.py runs MultKEFF.py on multiple cases such as those in inputASSBLYFile1.txt or inputASSBLYFile.txt and returns a csv file of assembly information lines
+runDirs.py runs MultKEFFfile.py over a list of libraries given as lines in a .txt file such as the ones found in the dragon/Libs
+ directory
+copyScript.py and runCopyScript.py were used to copy all the output tables mentioned above into one csv file. Note that these require an empty table with geometries and libraries predefined.  

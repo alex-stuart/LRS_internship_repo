@@ -1,0 +1,1827 @@
+* CLE-2000 VERS 3.0 * R.ROY, EPM COPYRIGHT 1999 *                          LINE
+*----                                                                      0001
+*  TEST CASE TCWU02                                                        0002
+*  17 X 17 PWR ASSEMBLY WITHOUT POISON                                     0003
+*  WIMSD4 69 GROUPS LIBRARY FILE iaea FROM WLUP                            0004
+*                                                                          0005
+*  REF: none                                                               0006
+*                                                                          0007
+*----                                                                      0008
+*  Define STRUCTURES and MODULES used                                      0009
+*----                                                                      0010
+LINKED_LIST                                                                0011
+ASSMB DISCR LIBRARY LIBRARY1 CP CALC OUT DATABASE ISOT SPHGEOM MTRACK      0012
+MAC ;                                                                      0013
+SEQ_BINARY                                                                 0014
+TRKSPC ;                                                                   0015
+SEQ_ASCII                                                                  0016
+res ;                                                                      0017
+SEQ_ASCII                                                                  0018
+flx ;                                                                      0019
+SEQ_ASCII _LIBR :: FILE './_LIB_rowland.txt' ;                             0020
+MODULE                                                                     0021
+LIB: GEO: SYBILT: MCCGT: EXCELT: BIVACT: USS: ASM: FLU: EDI: COMPO: M2T:   0022
+EVO: DELETE: END: ;                                                        0023
+PROCEDURE assertS ;                                                        0024
+*----                                                                      0025
+*  Microscopic cross sections from file iaea format WIMSD4                 0026
+*----                                                                      0027
+LIBRARY1 := LIB: ::                                                        0028
+NMIX 5                                                                     0029
+CTRA NONE                                                                  0030
+ANIS 1                                                                     0031
+SUBG                                                                       0032
+DEPL LIB: WIMSD4 FIL: E80_69W                                              0033
+MIXS LIB: WIMSD4 FIL: E80_69W                                              0034
+MIX 1 1200.0                                                               0035
+O16      = '6016'   4.57642E-2                                             0036
+U234     = '234'    6.11864E-6                                             0037
+U235     = '2235'   7.18132E-4  1                                          0038
+U238     = '8238'   2.21546E-2  1                                          0039
+U236     = '236'   3.29861E-6                                              0040
+MIX 2 600.0                                                                0041
+Zr90 = '4090'   2.18865E-02                                                0042
+Zr91 = '4091'   4.77292E-03                                                0043
+Zr92 = '4092'   7.29551E-03                                                0044
+Zr94 = '4094'   7.39335E-03                                                0045
+Zr96 = '4096'   1.19110E-03                                                0046
+Sn112 = '3112'   4.68066E-06                                               0047
+Sn114 = '3114'   3.18478E-06                                               0048
+Sn115 = '3115'   1.64064E-06                                               0049
+Sn116 = '3116'   7.01616E-05                                               0050
+Sn117 = '3117'   3.70592E-05                                               0051
+Sn118 = '3118'   1.16872E-04                                               0052
+Sn119 = '3119'   4.14504E-05                                               0053
+Sn120 = '3120'   1.57212E-04                                               0054
+Sn122 = '3122'   2.23417E-05                                               0055
+Sn124 = '3124'   2.79392E-05                                               0056
+Fe054 = '2654'   8.68307E-06                                               0057
+Fe056 = '2656'   1.36306E-04                                               0058
+Fe057 = '2657'   3.14789E-06                                               0059
+Fe058 = '2658'   4.18926E-07                                               0060
+Cr050 = '2450'   3.30121E-06                                               0061
+Cr052 = '2452'   6.36606E-05                                               0062
+Cr053 = '2453'   7.21860E-06                                               0063
+Cr054 = '2454'   1.79686E-06                                               0064
+Hf174 = '1174'   3.54138E-09                                               0065
+Hf176 = '2176'   1.16423E-07                                               0066
+Hf177 = '2177'   4.11686E-07                                               0067
+Hf178 = '2178'   6.03806E-07                                               0068
+Hf179 = '2179'   3.01460E-07                                               0069
+Hf180 = '2180'   7.76449E-07                                               0070
+MIX 3 600.0                                                                0071
+H1H2O    = '3001'   0.0441707477267                                        0072
+O16H2O   = '6016'   0.0220853738633                                        0073
+B10      = '510'   9.5253405E-06                                           0074
+B11      = '511'   3.83407762E-05                                          0075
+;                                                                          0076
+*----                                                                      0077
+*  Geometry ASSMB : a 17 X 17 normal PWR assembly                          0078
+*  contains  C1 : cell without fuel                                        0079
+*            C2 : normal fuel cell                                         0080
+*            C3 : peripheral cell                                          0081
+*            C4 : corner cell                                              0082
+*----                                                                      0083
+ASSMB := GEO: :: CAR2D 1 1                                                 0084
+X- REFL X+ REFL Y- REFL Y+ REFL                                            0085
+CELL C1                                                                    0086
+::: C1 := GEO: CARCEL 2                                                    0087
+MESHX 0.0 1.26                                                             0088
+MESHY 0.0 1.26                                                             0089
+RADIUS 0.0 0.4096 0.475                                                    0090
+SECT 2 0                                                                   0091
+MIX 1 2 3 ;                                                                0092
+;                                                                          0093
+*----                                                                      0094
+*  Self-Shielding calculation SYBIL                                        0095
+*  Transport calculation      SYBIL                                        0096
+*  Flux calculation for B1 homogeneous leakage                             0097
+*  Editing using SPH model for transport-diffusion                         0098
+*----                                                                      0099
+DISCR TRKSPC := EXCELT: ASSMB ::                                           0100
+TITLE 'TCDR01: MOSTELLER BENCHMARK (EXCELL)'                               0101
+MAXR 2000 TRAK TSPC 16 20.0 ;                                              0102
+DISCR := MCCGT: DISCR TRKSPC ::                                            0103
+EDIT 1 CACB 5                                                              0104
+AAC 80 TMT EPSI 1E-5 MCU 2500                                              0105
+MAXI 1 KRYL 0 SCR 0 HDD 0.0 ;                                              0106
+LIBRARY := USS: LIBRARY1 DISCR TRKSPC :: EDIT 0 NOTR ;                     0107
+CP := ASM: LIBRARY DISCR TRKSPC ::                                         0108
+EDIT 2 ARM ;                                                               0109
+CALC := FLU: LIBRARY DISCR CP TRKSPC ::                                    0110
+TYPE K ;                                                                   0111
+OUT := EDI: LIBRARY DISCR CALC ASSMB ::                                    0112
+EDIT 3 SAVE MERGE NONE                                                     0113
+* EDIT 5 MICR 10 U235 U238 Pu239                                           0114
+*   Pu240 Pu241 Pu242 U236 Am241 Am243 Sm151 COND                          0115
+* SAVE ON FUEL                                                             0116
+*   MERGE REGI 1 1 1 0 0                                                   0117
+;                                                                          0118
+_LIBR := LIBRARY ;                                                         0119
+*res := DATABASE ;                                                         0120
+END: ;                                                                     0121
+QUIT "LIST" .                                                              0122
+ 
+<|LINKED_LIST                                                             |<0011
+<|ASSMB DISCR LIBRARY LIBRARY1 CP CALC OUT DATABASE ISOT SPHGEOM MTRACK   |<0012
+<|MAC ;                                                                   |<0013
+<|SEQ_BINARY                                                              |<0014
+<|TRKSPC ;                                                                |<0015
+<|SEQ_ASCII                                                               |<0016
+<|res ;                                                                   |<0017
+<|SEQ_ASCII                                                               |<0018
+<|flx ;                                                                   |<0019
+<|SEQ_ASCII _LIBR :: FILE './_LIB_rowland.txt' ;                          |<0020
+<|MODULE                                                                  |<0021
+<|LIB: GEO: SYBILT: MCCGT: EXCELT: BIVACT: USS: ASM: FLU: EDI: COMPO: M2T:|<0022
+<|EVO: DELETE: END: ;                                                     |<0023
+<|PROCEDURE assertS ;                                                     |<0024
+<|LIBRARY1 := LIB: ::                                                     |<0028
+<|NMIX 5                                                                  |<0029
+<|CTRA NONE                                                               |<0030
+<|ANIS 1                                                                  |<0031
+<|SUBG                                                                    |<0032
+<|DEPL LIB: WIMSD4 FIL: E80_69W                                           |<0033
+<|MIXS LIB: WIMSD4 FIL: E80_69W                                           |<0034
+<|MIX 1 1200.0                                                            |<0035
+<|O16      = '6016'   4.57642E-2                                          |<0036
+<|U234     = '234'    6.11864E-6                                          |<0037
+<|U235     = '2235'   7.18132E-4  1                                       |<0038
+<|U238     = '8238'   2.21546E-2  1                                       |<0039
+<|U236     = '236'   3.29861E-6                                           |<0040
+<|MIX 2 600.0                                                             |<0041
+<|Zr90 = '4090'   2.18865E-02                                             |<0042
+<|Zr91 = '4091'   4.77292E-03                                             |<0043
+<|Zr92 = '4092'   7.29551E-03                                             |<0044
+<|Zr94 = '4094'   7.39335E-03                                             |<0045
+<|Zr96 = '4096'   1.19110E-03                                             |<0046
+<|Sn112 = '3112'   4.68066E-06                                            |<0047
+<|Sn114 = '3114'   3.18478E-06                                            |<0048
+<|Sn115 = '3115'   1.64064E-06                                            |<0049
+<|Sn116 = '3116'   7.01616E-05                                            |<0050
+<|Sn117 = '3117'   3.70592E-05                                            |<0051
+<|Sn118 = '3118'   1.16872E-04                                            |<0052
+<|Sn119 = '3119'   4.14504E-05                                            |<0053
+<|Sn120 = '3120'   1.57212E-04                                            |<0054
+<|Sn122 = '3122'   2.23417E-05                                            |<0055
+<|Sn124 = '3124'   2.79392E-05                                            |<0056
+<|Fe054 = '2654'   8.68307E-06                                            |<0057
+<|Fe056 = '2656'   1.36306E-04                                            |<0058
+<|Fe057 = '2657'   3.14789E-06                                            |<0059
+<|Fe058 = '2658'   4.18926E-07                                            |<0060
+<|Cr050 = '2450'   3.30121E-06                                            |<0061
+<|Cr052 = '2452'   6.36606E-05                                            |<0062
+<|Cr053 = '2453'   7.21860E-06                                            |<0063
+<|Cr054 = '2454'   1.79686E-06                                            |<0064
+<|Hf174 = '1174'   3.54138E-09                                            |<0065
+<|Hf176 = '2176'   1.16423E-07                                            |<0066
+<|Hf177 = '2177'   4.11686E-07                                            |<0067
+<|Hf178 = '2178'   6.03806E-07                                            |<0068
+<|Hf179 = '2179'   3.01460E-07                                            |<0069
+<|Hf180 = '2180'   7.76449E-07                                            |<0070
+<|MIX 3 600.0                                                             |<0071
+<|H1H2O    = '3001'   0.0441707477267                                     |<0072
+<|O16H2O   = '6016'   0.0220853738633                                     |<0073
+<|B10      = '510'   9.5253405E-06                                        |<0074
+<|B11      = '511'   3.83407762E-05                                       |<0075
+<|;                                                                       |<0076
+ DDDDDD   RRRRRR     AAA     GGGGG    OOOOO   NN     NN
+ DDDDDDD  RRRRRRR   AAAAA   GGGGGGG  OOOOOOO  NNN    NN
+ DD   DD  RR   RR  AA   AA  GG       OO   OO  NNNN   NN
+ DD   DD  RRRRRR   AA   AA  GG  GGG  OO   OO  NN NN  NN
+ DD   DD  RRRR     AAAAAAA  GG  GGG  OO   OO  NN  NN NN
+ DD   DD  RR RR    AAAAAAA  GG   GG  OO   OO  NN   NNNN
+ DDDDDDD  RR  RR   AA   AA  GGGGGGG  OOOOOOO  NN    NNN
+ DDDDDD   RR   RR  AA   AA   GGGGG    OOOOO   NN     NN
+
+ VERSION dragon 5  Version 5.0.5 ($Revision: 1460 $)                   $Date: 2019-01-18 09:08:09 -0500 (Fri, 18 Jan 2019) $           
+ GROUPE D'ANALYSE NUCLEAIRE
+ ECOLE POLYTECHNIQUE DE MONTREAL
+
+
+
+ COPYRIGHT NOTICE FOR THIS VERSION OF dragon:
+ --------------------------------------------
+ Copyright (C) 2002 Ecole Polytechnique de Montreal 
+ This library is free software; you can redistribute it
+ and/or modify it under the terms of the GNU Lesser General
+ Public License as published by the Free Software Foundation;
+ either version 2.1 of the License, or (at your option) any
+ later version 
+
+
+
+
+->@BEGIN MODULE : LIB:        
+->@DESCRIPTION  : Microscopic xs-library processing                                       
+->@CREDITS      : A. Hebert, G. Marleau                                                   
+->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
+                  GNU LESSER GENERAL PUBLIC LICENSE
+
+ LIBEAD:   76 DEPLETING ISOTOPES HAVE BEEN ADDED IN MIXTURE    1.
+
+ LIBSUB: PROCESSING ISOTOPE/MATERIAL 'U235    0001'.
+
+ LIBSUB: PROCESSING ISOTOPE/MATERIAL 'U238    0001'.
+
+ LIBSUB: CPU TIME IN LIBLIB=      0.02 SECONDS.
+         CPU TIME IN LIBPTW=      0.00 SECONDS.
+
+ OPTIONS
+ -------
+ IMPX       1   (0=NO PRINT/1=SHORT/2=MORE)
+ IPROB      0   (0=DIRECT/1=ADJOINT)
+ ITIME      1   (1=STEADY-STATE/2=PROMPT)
+ NLIB       1   (NUMBER OF SETS OF LIBRARIES)
+ NGF       14   (NUMBER OF FAST GROUP WITHOUT SELF-SHIELDING)
+ IGRMAX    27   (LAST GROUP INDEX WITH SELF-SHIELDING)
+ NBISO    114   (NUMBER OF ISOTOPES OR MATERIALS)
+ NBMIX      3   (NUMBER OF MIXTURES)
+ NRES       1   (NUMBER OF SETS OF RESONANT MIXTURES)
+ NCOMB      2   (NUMBER OF DEPLETING MIXTURES)
+ NEDMAC    12   (NUMBER OF CROSS SECTION EDITS)
+ NGRO      69   (NUMBER OF ENERGY GROUPS)
+ NL         1   (NUMBER OF LEGENDRE ORDERS)
+ ITRANC     0   (0=NO TRANSPORT CORRECTION/1=APOLLO TYPE/2=RECOVER FROM LIBRARY/3=WIMS-D TYPE/4=LEAKAGE CORRECTION)
+ NBESP      0   (NUMBER OF ENERGY-DEPENDENT FISSION SPECTRA)
+ IPROC      1   (-1=SKIP LIBRARY PROCESSING/0=DILUTION INTERPOLATION/1=USE PHYSICAL TABLES/2=BUILD A DRAGLIB/3=COMPUTE CALENDF TABLES/4=SLOWING-DOWN TABLES/5=ALL CALENDF)
+ IMAC       0   (0=DO NOT/1=DO BUILD AN EMBEDDED MACROLIB)
+ NDEL       0   (NUMBER OF PRECURSOR GROUPS)
+ NDEPL     90   (NUMBER OF DEPLETING ISOTOPES)
+ NFISS      0   (NUMBER OF FISSILE ISOTOPES WITH PYIELD DATA)
+ ISOADD     0   (0=COMPLETE BURNUP CHAIN/1=DO NOT)
+ MAXISM   300   (MAX. NUMBER OF ISOTOPES PER MIXTURE)
+ IPRECI     4   (CALENDF ACCURACY FLAG:1/2/3/4)
+
+ CROSS SECTION EDIT NAME (LCM DIRECTORY NAME)
+ --------------------------------------------
+   1  NFTOT        2  NG           3  N2N   
+   4  N3N          5  N4N          6  NA    
+   7  NP           8  N2A          9  NNP   
+  10  ND          11  NT          12  TRANC 
+
+ AVAILABLE CROSS-SECTION LIBRARIES:
+    1 -- E80_69W                                                         
+
+                                                        NUMBER
+ SPEC   LOCAL NAME    ISOTOPE       FROM LIBRARY  MIX   DENSITY     TEMP(K)    SIGZERO    SELF-SHIEL  THERMAL CORRECTION
+ -----  ------------  ------------  ------------  ----  ----------  ---------  ---------  ----------  ------------------
+     1  O16     0001  6016          WIMSD4     1     1  4.5764E-02  1.200E+03  1.000E+10   0             0                 
+     2  U234    0001  234           WIMSD4     1     1  6.1186E-06  1.200E+03  1.000E+10   0             0                 
+     3  U235    0001  2235          WIMSD4     1     1  7.1813E-04  1.200E+03  1.000E+10   1             0                 
+     4  U238    0001  8238          WIMSD4     1     1  2.2155E-02  1.200E+03  1.000E+10   1             0                 
+     5  U236    0001  236           WIMSD4     1     1  3.2986E-06  1.200E+03  1.000E+10   0             0                 
+     6  Zr90    0002  4090          WIMSD4     1     2  2.1886E-02  6.000E+02  1.000E+10   0             0                 
+     7  Zr91    0002  4091          WIMSD4     1     2  4.7729E-03  6.000E+02  1.000E+10   0             0                 
+     8  Zr92    0002  4092          WIMSD4     1     2  7.2955E-03  6.000E+02  1.000E+10   0             0                 
+     9  Zr94    0002  4094          WIMSD4     1     2  7.3933E-03  6.000E+02  1.000E+10   0             0                 
+    10  Zr96    0002  4096          WIMSD4     1     2  1.1911E-03  6.000E+02  1.000E+10   0             0                 
+    11  Sn112   0002  3112          WIMSD4     1     2  4.6807E-06  6.000E+02  1.000E+10   0             0                 
+    12  Sn114   0002  3114          WIMSD4     1     2  3.1848E-06  6.000E+02  1.000E+10   0             0                 
+    13  Sn115   0002  3115          WIMSD4     1     2  1.6406E-06  6.000E+02  1.000E+10   0             0                 
+    14  Sn116   0002  3116          WIMSD4     1     2  7.0162E-05  6.000E+02  1.000E+10   0             0                 
+    15  Sn117   0002  3117          WIMSD4     1     2  3.7059E-05  6.000E+02  1.000E+10   0             0                 
+    16  Sn118   0002  3118          WIMSD4     1     2  1.1687E-04  6.000E+02  1.000E+10   0             0                 
+    17  Sn119   0002  3119          WIMSD4     1     2  4.1450E-05  6.000E+02  1.000E+10   0             0                 
+    18  Sn120   0002  3120          WIMSD4     1     2  1.5721E-04  6.000E+02  1.000E+10   0             0                 
+    19  Sn122   0002  3122          WIMSD4     1     2  2.2342E-05  6.000E+02  1.000E+10   0             0                 
+    20  Sn124   0002  3124          WIMSD4     1     2  2.7939E-05  6.000E+02  1.000E+10   0             0                 
+    21  Fe054   0002  2654          WIMSD4     1     2  8.6831E-06  6.000E+02  1.000E+10   0             0                 
+    22  Fe056   0002  2656          WIMSD4     1     2  1.3631E-04  6.000E+02  1.000E+10   0             0                 
+    23  Fe057   0002  2657          WIMSD4     1     2  3.1479E-06  6.000E+02  1.000E+10   0             0                 
+    24  Fe058   0002  2658          WIMSD4     1     2  4.1893E-07  6.000E+02  1.000E+10   0             0                 
+    25  Cr050   0002  2450          WIMSD4     1     2  3.3012E-06  6.000E+02  1.000E+10   0             0                 
+    26  Cr052   0002  2452          WIMSD4     1     2  6.3661E-05  6.000E+02  1.000E+10   0             0                 
+    27  Cr053   0002  2453          WIMSD4     1     2  7.2186E-06  6.000E+02  1.000E+10   0             0                 
+    28  Cr054   0002  2454          WIMSD4     1     2  1.7969E-06  6.000E+02  1.000E+10   0             0                 
+    29  Hf174   0002  1174          WIMSD4     1     2  3.5414E-09  6.000E+02  1.000E+10   0             0                 
+    30  Hf176   0002  2176          WIMSD4     1     2  1.1642E-07  6.000E+02  1.000E+10   0             0                 
+    31  Hf177   0002  2177          WIMSD4     1     2  4.1169E-07  6.000E+02  1.000E+10   0             0                 
+    32  Hf178   0002  2178          WIMSD4     1     2  6.0381E-07  6.000E+02  1.000E+10   0             0                 
+    33  Hf179   0002  2179          WIMSD4     1     2  3.0146E-07  6.000E+02  1.000E+10   0             0                 
+    34  Hf180   0002  2180          WIMSD4     1     2  7.7645E-07  6.000E+02  1.000E+10   0             0                 
+    35  H1H2O   0003  3001          WIMSD4     1     3  4.4171E-02  6.000E+02  1.000E+10   0             0                 
+    36  O16H2O  0003  6016          WIMSD4     1     3  2.2085E-02  6.000E+02  1.000E+10   0             0                 
+    37  B10     0003  510           WIMSD4     1     3  9.5253E-06  6.000E+02  1.000E+10   0             0                 
+    38  B11     0003  511           WIMSD4     1     3  3.8341E-05  6.000E+02  1.000E+10   0             0                 
+    39  1952    0001  1952          WIMSD4     1     1  0.0000E+00  1.200E+03  1.000E+10   0             0                 
+    40  1939    0001  1939          WIMSD4     1     1  0.0000E+00  1.200E+03  1.000E+10   0             0                 
+    41  927     0001  927           WIMSD4     1     1  0.0000E+00  1.200E+03  1.000E+10   0             0                 
+    42  1240    0001  1240          WIMSD4     1     1  0.0000E+00  1.200E+03  1.000E+10   0             0                 
+    43  6239    0001  6239          WIMSD4     1     1  0.0000E+00  1.200E+03  1.000E+10   0             0                 
+    44  4902    0001  4902          WIMSD4     1     1  0.0000E+00  1.200E+03  1.000E+10   0             0                 
+    45  1231    0001  1231          WIMSD4     1     1  0.0000E+00  1.200E+03  1.000E+10   0             0                 
+    46  2167    0001  2167          WIMSD4     1     1  0.0000E+00  1.200E+03  1.000E+10   0             0                 
+    47  2166    0001  2166          WIMSD4     1     1  0.0000E+00  1.200E+03  1.000E+10   0             0                 
+    48  165     0001  165           WIMSD4     1     1  0.0000E+00  1.200E+03  1.000E+10   0             0                 
+    49  164     0001  164           WIMSD4     1     1  0.0000E+00  1.200E+03  1.000E+10   0             0                 
+    50  163     0001  163           WIMSD4     1     1  0.0000E+00  1.200E+03  1.000E+10   0             0                 
+    51  162     0001  162           WIMSD4     1     1  0.0000E+00  1.200E+03  1.000E+10   0             0                 
+    52  161     0001  161           WIMSD4     1     1  0.0000E+00  1.200E+03  1.000E+10   0             0                 
+    53  160     0001  160           WIMSD4     1     1  0.0000E+00  1.200E+03  1.000E+10   0             0                 
+    54  2158    0001  2158          WIMSD4     1     1  0.0000E+00  1.200E+03  1.000E+10   0             0                 
+    55  2157    0001  2157          WIMSD4     1     1  0.0000E+00  1.200E+03  1.000E+10   0             0                 
+    56  2156    0001  2156          WIMSD4     1     1  0.0000E+00  1.200E+03  1.000E+10   0             0                 
+    57  2155    0001  2155          WIMSD4     1     1  0.0000E+00  1.200E+03  1.000E+10   0             0                 
+    58  2154    0001  2154          WIMSD4     1     1  0.0000E+00  1.200E+03  1.000E+10   0             0                 
+    59  4155    0001  4155          WIMSD4     1     1  0.0000E+00  1.200E+03  1.000E+10   0             0                 
+    60  4154    0001  4154          WIMSD4     1     1  0.0000E+00  1.200E+03  1.000E+10   0             0                 
+    61  4153    0001  4153          WIMSD4     1     1  0.0000E+00  1.200E+03  1.000E+10   0             0                 
+    62  5152    0001  5152          WIMSD4     1     1  0.0000E+00  1.200E+03  1.000E+10   0             0                 
+    63  5151    0001  5151          WIMSD4     1     1  0.0000E+00  1.200E+03  1.000E+10   0             0                 
+    64  4152    0001  4152          WIMSD4     1     1  0.0000E+00  1.200E+03  1.000E+10   0             0                 
+    65  4151    0001  4151          WIMSD4     1     1  0.0000E+00  1.200E+03  1.000E+10   0             0                 
+    66  4150    0001  4150          WIMSD4     1     1  0.0000E+00  1.200E+03  1.000E+10   0             0                 
+    67  4149    0001  4149          WIMSD4     1     1  0.0000E+00  1.200E+03  1.000E+10   0             0                 
+    68  6148    0001  6148          WIMSD4     1     1  0.0000E+00  1.200E+03  1.000E+10   0             0                 
+    69  6147    0001  6147          WIMSD4     1     1  0.0000E+00  1.200E+03  1.000E+10   0             0                 
+    70  5149    0001  5149          WIMSD4     1     1  0.0000E+00  1.200E+03  1.000E+10   0             0                 
+    71  4148    0001  4148          WIMSD4     1     1  0.0000E+00  1.200E+03  1.000E+10   0             0                 
+    72  5148    0001  5148          WIMSD4     1     1  0.0000E+00  1.200E+03  1.000E+10   0             0                 
+    73  4147    0001  4147          WIMSD4     1     1  0.0000E+00  1.200E+03  1.000E+10   0             0                 
+    74  5147    0001  5147          WIMSD4     1     1  0.0000E+00  1.200E+03  1.000E+10   0             0                 
+    75  4145    0001  4145          WIMSD4     1     1  0.0000E+00  1.200E+03  1.000E+10   0             0                 
+    76  4143    0001  4143          WIMSD4     1     1  0.0000E+00  1.200E+03  1.000E+10   0             0                 
+    77  4137    0001  4137          WIMSD4     1     1  0.0000E+00  1.200E+03  1.000E+10   0             0                 
+    78  5135    0001  5135          WIMSD4     1     1  0.0000E+00  1.200E+03  1.000E+10   0             0                 
+    79  4134    0001  4134          WIMSD4     1     1  0.0000E+00  1.200E+03  1.000E+10   0             0                 
+    80  4133    0001  4133          WIMSD4     1     1  0.0000E+00  1.200E+03  1.000E+10   0             0                 
+    81  4136    0001  4136          WIMSD4     1     1  0.0000E+00  1.200E+03  1.000E+10   0             0                 
+    82  4135    0001  4135          WIMSD4     1     1  0.0000E+00  1.200E+03  1.000E+10   0             0                 
+    83  5134    0001  5134          WIMSD4     1     1  0.0000E+00  1.200E+03  1.000E+10   0             0                 
+    84  4131    0001  4131          WIMSD4     1     1  0.0000E+00  1.200E+03  1.000E+10   0             0                 
+    85  6135    0001  6135          WIMSD4     1     1  0.0000E+00  1.200E+03  1.000E+10   0             0                 
+    86  4127    0001  4127          WIMSD4     1     1  0.0000E+00  1.200E+03  1.000E+10   0             0                 
+    87  5127    0001  5127          WIMSD4     1     1  0.0000E+00  1.200E+03  1.000E+10   0             0                 
+    88  4125    0001  4125          WIMSD4     1     1  0.0000E+00  1.200E+03  1.000E+10   0             0                 
+    89  4115    0001  4115          WIMSD4     1     1  0.0000E+00  1.200E+03  1.000E+10   0             0                 
+    90  4113    0001  4113          WIMSD4     1     1  0.0000E+00  1.200E+03  1.000E+10   0             0                 
+    91  4109    0001  4109          WIMSD4     1     1  0.0000E+00  1.200E+03  1.000E+10   0             0                 
+    92  4108    0001  4108          WIMSD4     1     1  0.0000E+00  1.200E+03  1.000E+10   0             0                 
+    93  4107    0001  4107          WIMSD4     1     1  0.0000E+00  1.200E+03  1.000E+10   0             0                 
+    94  5105    0001  5105          WIMSD4     1     1  0.0000E+00  1.200E+03  1.000E+10   0             0                 
+    95  4105    0001  4105          WIMSD4     1     1  0.0000E+00  1.200E+03  1.000E+10   0             0                 
+    96  4103    0001  4103          WIMSD4     1     1  0.0000E+00  1.200E+03  1.000E+10   0             0                 
+    97  4106    0001  4106          WIMSD4     1     1  0.0000E+00  1.200E+03  1.000E+10   0             0                 
+    98  5103    0001  5103          WIMSD4     1     1  0.0000E+00  1.200E+03  1.000E+10   0             0                 
+    99  4101    0001  4101          WIMSD4     1     1  0.0000E+00  1.200E+03  1.000E+10   0             0                 
+   100  4099    0001  4099          WIMSD4     1     1  0.0000E+00  1.200E+03  1.000E+10   0             0                 
+   101  4095    0001  4095          WIMSD4     1     1  0.0000E+00  1.200E+03  1.000E+10   0             0                 
+   102  4083    0001  4083          WIMSD4     1     1  0.0000E+00  1.200E+03  1.000E+10   0             0                 
+   103  962     0001  962           WIMSD4     1     1  0.0000E+00  1.200E+03  1.000E+10   0             0                 
+   104  953     0001  953           WIMSD4     1     1  0.0000E+00  1.200E+03  1.000E+10   0             0                 
+   105  948     0001  948           WIMSD4     1     1  0.0000E+00  1.200E+03  1.000E+10   0             0                 
+   106  232     0001  232           WIMSD4     1     1  0.0000E+00  1.200E+03  1.000E+10   0             0                 
+   107  937     0001  937           WIMSD4     1     1  0.0000E+00  1.200E+03  1.000E+10   0             0                 
+   108  1241    0001  1241          WIMSD4     1     1  0.0000E+00  1.200E+03  1.000E+10   0             0                 
+   109  9233    0001  9233          WIMSD4     1     1  0.0000E+00  1.200E+03  1.000E+10   0             0                 
+   110  964     0001  964           WIMSD4     1     1  0.0000E+00  1.200E+03  1.000E+10   0             0                 
+   111  963     0001  963           WIMSD4     1     1  0.0000E+00  1.200E+03  1.000E+10   0             0                 
+   112  951     0001  951           WIMSD4     1     1  0.0000E+00  1.200E+03  1.000E+10   0             0                 
+   113  1242    0001  1242          WIMSD4     1     1  0.0000E+00  1.200E+03  1.000E+10   0             0                 
+   114  952     0001  952           WIMSD4     1     1  0.0000E+00  1.200E+03  1.000E+10   0             0                 
+->@END MODULE   : LIB:        
+-->>MODULE LIB:        :TIME SPENT=        0.040 MEMORY USAGE= 7.080E+03
+<|ASSMB := GEO: :: CAR2D 1 1                                              |<0084
+<|X- REFL X+ REFL Y- REFL Y+ REFL                                         |<0085
+<|CELL C1                                                                 |<0086
+<|::: C1 := GEO: CARCEL 2                                                 |<0087
+<|MESHX 0.0 1.26                                                          |<0088
+<|MESHY 0.0 1.26                                                          |<0089
+<|RADIUS 0.0 0.4096 0.475                                                 |<0090
+<|SECT 2 0                                                                |<0091
+<|MIX 1 2 3 ;                                                             |<0092
+<|;                                                                       |<0093
+->@BEGIN MODULE : GEO:        
+->@DESCRIPTION  : Geometry definition                                                     
+->@CREDITS      : A. Hebert                                                               
+->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
+                  GNU LESSER GENERAL PUBLIC LICENSE
+
+ CREATION OF A LEVEL  2 GEOMETRY ON THE DIRECTORY NAMED 'C1          ' OF THE LCM OBJECT 'ASSMB       ' WITH TYPE 2-D RECT. CELL  .
+
+ CREATION OF A LEVEL  1 GEOMETRY ON THE DIRECTORY NAMED '/           ' OF THE LCM OBJECT 'ASSMB       ' WITH TYPE CARTESIAN 2-D   .
+->@END MODULE   : GEO:        
+-->>MODULE GEO:        :TIME SPENT=        0.000 MEMORY USAGE= 0.000E+00
+<|DISCR TRKSPC := EXCELT: ASSMB ::                                        |<0100
+<|TITLE 'TCDR01: MOSTELLER BENCHMARK (EXCELL)'                            |<0101
+<|MAXR 2000 TRAK TSPC 16 20.0 ;                                           |<0102
+->@BEGIN MODULE : EXCELT:     
+->@DESCRIPTION  : Excell tracking in 2- and 3-D                                           
+->@CREDITS      : G. Marleau, M. Ouisloumen, R. Roy                                       
+->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
+                  GNU LESSER GENERAL PUBLIC LICENSE
+ ASSMB        WAS NOT ASSEMBLY CHECKED
+ TCDR01: MOSTELLER BENCHMARK (EXCELL)                                    
+
+
+ 
+ ECHO = >>> GEOMETRY NAME: ASSMB   
+ ECHO = >>> TRACKING FILE: TRKSPC  
+ ECHO = >>>          DISP: NEWT
+ ECHO = >>> NORMALIZED-BY ANGLE     
+ 
+
+  ====> GLOBAL MESHING  
+        X-COORDINATES: 
+               0.000000      1.260000
+        Y-COORDINATES: 
+               0.000000      1.260000
+        CELL(       1,       1,       1)  (X,Y)- CENTRE: (      0.630000      0.630000)
+                          RADII: 
+                                0.409600      0.475000
+ 
+ >>> GEOMETRY TREATED:    ASSMB       
+ >>> EXCELL TREATMENT <<< 
+ 
+ 
+
+ NOW, TRACKING   >>> ASSMB        GEOMETRY <<<    (WITH ONE CYLINDER )
+
+ RECOMPUTED PARAMETERS 
+ NANGL  =        72 (NUMBER OF TRACKING ANGLES)
+ ISYMM  =         1 (TRACKING SYMMETRY FACTOR)
+ CUTOFX =   0.00000 (CUTOFF FOR TRACK LENGTH)
+ DENS   =  20.00000 (TRACK DENSITY)
+ PCORN  =   0.00000 (CORNER DUPLICATION DISTANCE)
+ -----------------
+
+ 
+
+ TRACKING ERRORS ON SURFACE   AVERAGE ERROR:     0.0538 %      MAXIMUM ERROR:     0.0538 % 
+ MAXIMUM ERROR ON SURFACE=       3 WITH AREA  = 1.2593E+00
+ 
+ TRACKING ERRORS ON VOLUME    AVERAGE ERROR:     0.0305 %      MAXIMUM ERROR:     0.5284 % 
+ MAXIMUM ERROR IN REGION =       2 WITH VOLUME= 1.8079E-01
+ 
+ ECHO = >>>  SPECULAR CP CALCULATION    
+ ECHO = >>>    NO CUT-OFF  
+ ECHO = >>> NB. OF REGIONS:     3
+ EXCELT PRINT LEVEL =       1
+ TRACK STATE-VECTOR
+ ------------------
+ NREG   =       3 (NUMBER OF REGIONS)
+ NUNKNO =       3 (NUMBER OF UNKNOWNS IN SYSTEM)
+ ILEAK  =       1 (LEAKAGE FLAG:0=PRESENT/1=ABSENT)
+ MAXMIX =       3 (NUMBER OF MIXTURES)
+ NSOUT  =       4 (NUMBER OF OUTER SURFACES)
+ NANIS  =       1 (FLUX ANISOTROPY ORDER)
+ ITROP  =       1 (GEOMETRY TYPE)
+ NORE   =      -1 (TRACK NORMALIZATION OPTION)
+ KTOPT  =       1 (TYPE OF TRACKING:0=TISO/1=TSPC)
+ KSPEC  =       1 (TYPE OF BOUNDARY CONDITION)
+ NANGL  =      18 (USER-SUPPLIED NUMBER OF TRACKING ANGLES)
+ ISYMM  =       0 (USER-SUPPLIED TRACKING SYMMETRY FACTOR)
+ INSB   =       0 (TYPE OF VECTORIZATION:0=ONEG/1=ALLG/2=XCLL)
+ NDIM   =       2 (NUMBER OF GEOMETRIC DIMENSIONS)
+ NPRISM =       0 (NUMBER OF PLANS IN 3D PRISMATIC GEOMETRIES)
+ IBIHET =       0 (0/1=DOUBLE HETEROGENEITY IS NOT/IS ACTIVE)
+ -----------------
+
+ EXCELL TRACK OPTIONS 
+ CUTOFX =          0.00000000 (CUTOFF FOR TRACK LENGTH)
+ DENS   =         20.00000000 (TRACK DENSITY)
+ PCORN  =          0.00000000 (CORNER DUPLICATION DISTANCE)
+ -----------------
+
+->@END MODULE   : EXCELT:     
+-->>MODULE EXCELT:     :TIME SPENT=        0.003 MEMORY USAGE= 0.000E+00
+<|DISCR := MCCGT: DISCR TRKSPC ::                                         |<0103
+<|EDIT 1 CACB 5                                                           |<0104
+<|AAC 80 TMT EPSI 1E-5 MCU 2500                                           |<0105
+<|MAXI 1 KRYL 0 SCR 0 HDD 0.0 ;                                           |<0106
+->@BEGIN MODULE : MCCGT:      
+->@DESCRIPTION  : Method of characteristics in 2- and 3-D                                 
+->@CREDITS      : I. Suslov, R. Roy, R. Le Tellier, A. Hebert                             
+->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
+                  GNU LESSER GENERAL PUBLIC LICENSE
+->@END MODULE   : MCCGT:      
+-->>MODULE MCCGT:      :TIME SPENT=        0.000 MEMORY USAGE= 0.000E+00
+<|LIBRARY := USS: LIBRARY1 DISCR TRKSPC :: EDIT 0 NOTR ;                  |<0107
+->@BEGIN MODULE : USS:        
+->@DESCRIPTION  : Self-shielding by subgroup method                                       
+->@CREDITS      : A. Hebert                                                               
+->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
+                  GNU LESSER GENERAL PUBLIC LICENSE
+->@END MODULE   : USS:        
+-->>MODULE USS:        :TIME SPENT=        0.476 MEMORY USAGE= 2.868E+03
+<|CP := ASM: LIBRARY DISCR TRKSPC ::                                      |<0108
+<|EDIT 2 ARM ;                                                            |<0109
+->@BEGIN MODULE : ASM:        
+->@DESCRIPTION  : To built system matrices (CP and IC)                                    
+->@CREDITS      : A. Hebert, G. Marleau, R. Roy                                           
+->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
+                  GNU LESSER GENERAL PUBLIC LICENSE
+
+
+ COMPUTATION OF DRAGON RESPONSE MATRICES BY DOOR =   MCCG        
+
+
+                               EDITION REGION/VOLUME/MIXTURE 
+
+     REGION     VOLUME       MIXTURE     REGION     VOLUME       MIXTURE     REGION     VOLUME       MIXTURE
+
+        1     5.27072E-01       1            2     1.81750E-01       2            3     8.78778E-01       3
+ TRACKING MERGING: FROM TRACKING FILE
+                            82  TRACKS ->          41  EQUIVALENT TRACKS
+                          6268  SEGMENTS ->        5414  SEGMENTS
+                             5  POLAR ANGLES -> 1 EQUIVALENT POLAR ANGLE
+   -->>TIME SPENT IN: SUMMATION UPON THE TRACKING FOR ACA/SCR :        0.037 s.
+   -->>TIME SPENT IN: CALCULATION OF ACA PRECONDITIONER       :        0.000 s.
+
+ OPTIONS
+ -------
+ IMPX       2   (0=NO PRINT/1=SHORT/2=MORE)
+ ITPIJ      1   (1=WIJ/2=PIJ/3=WIJK/4=PIJK)
+ LNORM      1   (0=NORMALIZE PIJ TO 1/1=DO NOT)
+ LALBS      1   (0=RECOVER AND SAVE WIS/1=DO NOT)
+ IPHASE     1   (1=GENERAL FLUX SOLUTION/2=PIJ APPROACH)
+ ISTRM      1   (1=HOMO BN OR NO LEAKAGE/2=ECCO/3=TIBERE)
+ KNORM      4   (0=NO/1=GELBARD/2=DIAGONAL/3=NON-LINEAR/4=HELIOS)
+ NGRP      69   (NUMBER OF GROUPS)
+ NUN        3   (NUMBER OF UNKNOWNS)
+ NBMIX      3   (NUMBER OF MIXTURES)
+ NANI       1   (NUMBER OF LEGENDRE ORDERS SCATTERING XS)
+ IDIFF      0   (0/1: DIFFUSION COEFFICIENTS ABSENT/PRESENT)
+ DOOR           (MCCG        )
+->@END MODULE   : ASM:        
+-->>MODULE ASM:        :TIME SPENT=        0.038 MEMORY USAGE= 3.240E+02
+<|CALC := FLU: LIBRARY DISCR CP TRKSPC ::                                 |<0110
+<|TYPE K ;                                                                |<0111
+->@BEGIN MODULE : FLU:        
+->@DESCRIPTION  : Solve the flux equations                                                
+->@CREDITS      : R. Roy, A. Hebert, G. Marleau                                           
+->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
+                  GNU LESSER GENERAL PUBLIC LICENSE
+
+
+
+
+ P. I. M.    SOLUTION TO TRANSPORT EQUATION
+
+ CALCULATION TYPE            =     K-INF
+ FORWARD/BACKWARD OPTION     =    DIRECT
+ (AN)ISOTROPY OPTION         = ISOTROPIC
+ FLUX SOLUTION DOOR          =    MCCG  
+ NB. OF GROUPS               =        69
+ NB. OF REGIONS              =         3
+ NB. OF UNKNOWNS PER GROUP   =         3
+ MAX. OUTER ITERATIONS       =        43
+ MAX. THERMAL ITERATIONS     =       138
+ ACCELERATION SCHEME         =( 3 FREE, 3 ACCELERATED)
+ REBALANCING OPTION          = ON 
+ SELF-SCATTERING REDUCTION   = ON 
+ FUNDAMENTAL MODE            = ON 
+ EIGENVALUE TOLERANCE        =  1.000E-05
+ UNKNOWN OUTER TOLERANCE     =  5.000E-05
+ UNKNOWN INNER TOLERANCE     =  5.000E-05
+
+ OUT(  0) EIG: PRC= 1.00E+00 TAR= 1.00E-05 KEFF= 1.455874E+00 BUCK= 0.00000E+00
+          ACA: GROUPS   1 TO  27: GAUSS-SEIDEL SCHEME
+          ACA: UP-SCATTE. GROUPS: MULTIGROUP BICGSTAB: PRC 0.13E-06 (  17 ITERATIONS)
+          M O C PARAMETERS:  CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                             
+          IN(  1) FLX: PRC= 1.20E+01 TAR= 5.00E-05 IGDEB=            1 ACCE=     1.00000
+          ACA: GROUPS   1 TO  27: GAUSS-SEIDEL SCHEME
+          ACA: UP-SCATTE. GROUPS: MULTIGROUP BICGSTAB: PRC 0.65E-06 (  17 ITERATIONS)
+          M O C PARAMETERS:  CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                             
+          IN(  2) FLX: PRC= 2.63E-01 TAR= 5.00E-05 IGDEB=            1 ACCE=     1.00000
+          ACA: GROUPS   1 TO  27: GAUSS-SEIDEL SCHEME
+          ACA: UP-SCATTE. GROUPS: MULTIGROUP BICGSTAB: PRC 0.19E-06 (  15 ITERATIONS)
+          M O C PARAMETERS:  CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                             
+          IN(  3) FLX: PRC= 1.67E-02 TAR= 5.00E-05 IGDEB=            3 ACCE=     1.00000
+                  FIRST UNCONVERGED GROUP PRC= 0.66E-04
+          ACA: GROUPS   3 TO  27: GAUSS-SEIDEL SCHEME
+          ACA: UP-SCATTE. GROUPS: MULTIGROUP BICGSTAB: PRC 0.66E-06 (  15 ITERATIONS)
+          M O C PARAMETERS:  CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                             
+          IN(  4) FLX: PRC= 3.79E-04 TAR= 5.00E-05 IGDEB=           24 ACCE=     1.08311
+                  FIRST UNCONVERGED GROUP PRC= 0.57E-04
+ FLU2DR: NO LEAKAGE-> REBALANCING ON
+ FLU2DR: CPU TIME=        0. INTERNAL CONVERGENCE *NOT* REACHED AFTER     4 ITERATIONS.
+ OUT(  1) EIG: PRC= 2.64E-01 TAR= 1.00E-05 KEFF= 1.151970E+00 BUCK= 0.00000E+00
+ OUT(  1) FLX:                             FNOR= 8.680781E-01 ACCE=     1.00000
+          ACA: GROUPS   1 TO  27: GAUSS-SEIDEL SCHEME
+          ACA: UP-SCATTE. GROUPS: MULTIGROUP BICGSTAB: PRC 0.30E-07 (  17 ITERATIONS)
+          M O C PARAMETERS:  CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                             
+          IN(  1) FLX: PRC= 1.98E-05 TAR= 5.00E-05 IGDEB=           70 ACCE=     1.00000
+ FLU2DR: NO LEAKAGE-> REBALANCING ON
+ FLU2DR: CPU TIME=        0. INTERNAL CONVERGENCE       REACHED AFTER     1 ITERATIONS.
+ OUT(  2) EIG: PRC= 3.69E-08 TAR= 1.00E-05 KEFF= 1.151970E+00 BUCK= 0.00000E+00
+ OUT(  2) FLX: PRC= 1.98E-05 TAR= 5.00E-05 FNOR= 8.680781E-01 ACCE=     1.00000
+ FLU2DR: CPU TIME=        0. EXTERNAL CONVERGENCE       REACHED AFTER     2 ITERATIONS.
+
+ ++ TRACKING CALLED=   5 TIMES FINAL KINF=1.151970E+00 FINAL KEFF=1.151970E+00 B2= 0.00000E+00 PRECISION= 3.69E-08
+ ++ TOTAL NUMBER OF FLUX CALCULATIONS=       343
+->@END MODULE   : FLU:        
+-->>MODULE FLU:        :TIME SPENT=        0.178 MEMORY USAGE= 0.000E+00
+<|OUT := EDI: LIBRARY DISCR CALC ASSMB ::                                 |<0112
+<|EDIT 3 SAVE MERGE NONE                                                  |<0113
+<|;                                                                       |<0118
+->@BEGIN MODULE : EDI:        
+->@DESCRIPTION  : Editing module                                                          
+->@CREDITS      : A. Hebert, G. Marleau                                                   
+->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
+                  GNU LESSER GENERAL PUBLIC LICENSE
+
+ EDITION-RELATED OPTIONS
+ -----------------------
+ NMERGE       3   (NUMBER OF MERGED REGIONS)
+ NGCOND      69   (NUMBER OF CONDENSED ENERGY GROUPS)
+ IFFAC        0   (=1: 4 FACTORS CALCULATION REQUESTED)
+ ILUPS        0   (=1: REMOVE UP-SCATTERING CONTRIBUTIONS)
+ NACTI        0   (NUMBER OF MIXTURES WITH ACTIVATION EDITS)
+ NSTATS       0   (TYPE OF STATISTIC CALCULATIONS)
+ IADF         0   (=0: DO NOT COMPUTE ADF; =1: USE ALBS INFO; =2: USE BOUNDARY FLUX INFO; =3: USE EURYDICE INFO; =4: USE MACROLIB INFO)
+ IEUR         0   (=1/2/3: SYBIL OR EXCELL MACRO-TRACKING/NXT MACRO-TRACKING/ELSE)
+ NBMICR       0   (=-1: PROCESS ALL ISOTOPES; >1: NUMBER OF ISOTOPES TO PROCESS)
+ IPRINT       3   (PRINT LEVEL)
+ NSAVES       2   (=0: NO COMPUTE/NO SAVE; =1: COMPUTE/NO SAVE; =2: COMPUTE/SAVE)
+ NWGTH        0   (=0: FLUX WEIGHTING FOR P1 INFO; =1: CURRENT WEIGHTING FOR P1 INFO)
+ MAXPTS       3   (ALLOCATED STORAGE LENGTH FOR REGION-DEPENDENT ARRAYS)
+ IHF          1   (=1: H-FACTOR CALCULATION REQUESTED)
+ NDEL         0   (NUMBER OF DELAYED PRECURSOR GROUPS)
+ LGEO         0   (=0: MACRO-GEOMETRY NOT AVAILABLE; =1: IS AVAILABLE)
+ IADJ         0   (=0: DIRECT FLUX; =1: DIRECT-ADJOINT WEIGHTING)
+ ICURR        0   (=1: HETEROGENEOUS BN WEIGHTING; =2: TODOROVA WEIGHTING)
+ NOUT         0   (=0: OUTPUT ALL REACTIONS; >0: NUMBER OF OUTPUT REACTIONS)
+
+
+ MERGING INDEX:
+     1    2    3
+
+ EDI: SAVE MICROLIB INFO ON DIRECTORY 'REF-CASE0001'.
+
+
+
+
+     REGION      VOLUME       REGION      VOLUME       REGION      VOLUME       REGION      VOLUME       REGION      VOLUME  
+        1     5.27072E-01        2     1.81750E-01        3     8.78778E-01
+
+ E N E R G Y   L I M I T S   (EV)
+  1.0000E+07 >   1 >   6.0655E+06 >   2 >   3.6790E+06 >   3 >   2.2310E+06 >   4 >   1.3530E+06 >   5 >   8.2100E+05 >   6 > 
+  5.0000E+05 >   7 >   3.0250E+05 >   8 >   1.8300E+05 >   9 >   1.1100E+05 >  10 >   6.7340E+04 >  11 >   4.0850E+04 >  12 > 
+  2.4780E+04 >  13 >   1.5030E+04 >  14 >   9.1180E+03 >  15 >   5.5300E+03 >  16 >   3.5191E+03 >  17 >   2.2394E+03 >  18 > 
+  1.4251E+03 >  19 >   9.0690E+02 >  20 >   3.6726E+02 >  21 >   1.4873E+02 >  22 >   7.5501E+01 >  23 >   4.8052E+01 >  24 > 
+  2.7700E+01 >  25 >   1.5968E+01 >  26 >   9.8770E+00 >  27 >   4.0000E+00 >  28 >   3.3000E+00 >  29 >   2.6000E+00 >  30 > 
+  2.1000E+00 >  31 >   1.5000E+00 >  32 >   1.3000E+00 >  33 >   1.1500E+00 >  34 >   1.1230E+00 >  35 >   1.0970E+00 >  36 > 
+  1.0710E+00 >  37 >   1.0450E+00 >  38 >   1.0200E+00 >  39 >   9.9600E-01 >  40 >   9.7200E-01 >  41 >   9.5000E-01 >  42 > 
+  9.1000E-01 >  43 >   8.5000E-01 >  44 >   7.8000E-01 >  45 >   6.2500E-01 >  46 >   5.0000E-01 >  47 >   4.0000E-01 >  48 > 
+  3.5000E-01 >  49 >   3.2000E-01 >  50 >   3.0000E-01 >  51 >   2.8000E-01 >  52 >   2.5000E-01 >  53 >   2.2000E-01 >  54 > 
+  1.8000E-01 >  55 >   1.4000E-01 >  56 >   1.0000E-01 >  57 >   8.0000E-02 >  58 >   6.7000E-02 >  59 >   5.8000E-02 >  60 > 
+  5.0000E-02 >  61 >   4.2000E-02 >  62 >   3.5000E-02 >  63 >   3.0000E-02 >  64 >   2.5000E-02 >  65 >   2.0000E-02 >  66 > 
+  1.5000E-02 >  67 >   1.0000E-02 >  68 >   5.0000E-03 >  69 >   1.0000E-05
+
+ F L U X E S   A N D    R E A C T I O N    R A T E S
+ ---------------------------------------------------
+
+ G R O U P   :   1
+ REGION   AVERAGE     INTEGRATED     COLLISION    ABSORPTION    NU*FISSION    PRODUCTION        SCATTERING RATES
+           FLUX          FLUX          RATE          RATE          RATE          RATE      WITHIN GROUP  OUT OF GROUP
+    1   2.34181E-01   1.23430E-01   1.63414E-02   1.89378E-03   8.88807E-03   3.06167E-02   4.83768E-03   9.60990E-03
+    2   2.27425E-01   4.13345E-02   4.16531E-03  -2.56710E-05   0.00000E+00   0.00000E+00   1.06165E-03   3.12934E-03
+    3   2.22766E-01   1.95762E-01   1.55962E-02   7.03891E-04   0.00000E+00   0.00000E+00   3.62587E-03   1.12665E-02
+
+ G R O U P   :   2
+ REGION   AVERAGE     INTEGRATED     COLLISION    ABSORPTION    NU*FISSION    PRODUCTION        SCATTERING RATES
+           FLUX          FLUX          RATE          RATE          RATE          RATE      WITHIN GROUP  OUT OF GROUP
+    1   9.41564E-01   4.96272E-01   8.60268E-02   8.06676E-03   1.96446E-02   1.29161E-01   3.91192E-02   3.88408E-02
+    2   9.12010E-01   1.65758E-01   1.89560E-02   3.07299E-05   0.00000E+00   0.00000E+00   6.63962E-03   1.22857E-02
+    3   8.92863E-01   7.84629E-01   9.25861E-02   1.13658E-03   0.00000E+00   0.00000E+00   3.19683E-02   5.94812E-02
+
+ G R O U P   :   3
+ REGION   AVERAGE     INTEGRATED     COLLISION    ABSORPTION    NU*FISSION    PRODUCTION        SCATTERING RATES
+           FLUX          FLUX          RATE          RATE          RATE          RATE      WITHIN GROUP  OUT OF GROUP
+    1   2.01098E+00   1.05993E+00   1.79973E-01   1.42450E-02   3.68966E-02   2.43675E-01   9.44219E-02   7.13057E-02
+    2   1.95039E+00   3.54483E-01   4.62529E-02   1.05508E-04   0.00000E+00   0.00000E+00   2.35570E-02   2.25905E-02
+    3   1.90898E+00   1.67757E+00   2.32026E-01   2.45869E-05   0.00000E+00   0.00000E+00   7.94913E-02   1.52510E-01
+
+ G R O U P   :   4
+ REGION   AVERAGE     INTEGRATED     COLLISION    ABSORPTION    NU*FISSION    PRODUCTION        SCATTERING RATES
+           FLUX          FLUX          RATE          RATE          RATE          RATE      WITHIN GROUP  OUT OF GROUP
+    1   2.18205E+00   1.15010E+00   2.30887E-01   1.37120E-02   3.14839E-02   2.63374E-01   1.26622E-01   9.05537E-02
+    2   2.12002E+00   3.85313E-01   5.50842E-02   1.94766E-04   0.00000E+00   0.00000E+00   4.34818E-02   1.14077E-02
+    3   2.06853E+00   1.81778E+00   3.33760E-01   1.71065E-05   0.00000E+00   0.00000E+00   1.08582E-01   2.25161E-01
+
+ G R O U P   :   5
+ REGION   AVERAGE     INTEGRATED     COLLISION    ABSORPTION    NU*FISSION    PRODUCTION        SCATTERING RATES
+           FLUX          FLUX          RATE          RATE          RATE          RATE      WITHIN GROUP  OUT OF GROUP
+    1   2.10158E+00   1.10769E+00   3.20976E-01   4.56938E-03   4.33303E-03   2.02789E-01   2.25049E-01   9.13574E-02
+    2   2.04060E+00   3.70879E-01   6.42292E-02   1.80937E-04   0.00000E+00   0.00000E+00   5.76675E-02   6.38079E-03
+    3   1.98662E+00   1.74580E+00   4.69462E-01   8.16584E-06   0.00000E+00   0.00000E+00   1.73953E-01   2.95500E-01
+
+ G R O U P   :   6
+ REGION   AVERAGE     INTEGRATED     COLLISION    ABSORPTION    NU*FISSION    PRODUCTION        SCATTERING RATES
+           FLUX          FLUX          RATE          RATE          RATE          RATE      WITHIN GROUP  OUT OF GROUP
+    1   2.40106E+00   1.26553E+00   3.35613E-01   4.41995E-03   2.69470E-03   1.29427E-01   2.85309E-01   4.58833E-02
+    2   2.33073E+00   4.23610E-01   9.30842E-02   2.33516E-04   0.00000E+00   0.00000E+00   8.94894E-02   3.36130E-03
+    3   2.26487E+00   1.99032E+00   6.04551E-01   1.39475E-05   0.00000E+00   0.00000E+00   2.09750E-01   3.94787E-01
+
+ G R O U P   :   7
+ REGION   AVERAGE     INTEGRATED     COLLISION    ABSORPTION    NU*FISSION    PRODUCTION        SCATTERING RATES
+           FLUX          FLUX          RATE          RATE          RATE          RATE      WITHIN GROUP  OUT OF GROUP
+    1   1.56270E+00   8.23657E-01   3.44088E-01   2.81653E-03   1.77414E-03   7.49687E-02   2.80783E-01   6.04889E-02
+    2   1.52642E+00   2.77428E-01   7.44871E-02   1.47551E-04   0.00000E+00   0.00000E+00   7.08947E-02   3.44485E-03
+    3   1.49210E+00   1.31123E+00   5.74613E-01   1.80006E-05   0.00000E+00   0.00000E+00   2.05033E-01   3.69563E-01
+
+ G R O U P   :   8
+ REGION   AVERAGE     INTEGRATED     COLLISION    ABSORPTION    NU*FISSION    PRODUCTION        SCATTERING RATES
+           FLUX          FLUX          RATE          RATE          RATE          RATE      WITHIN GROUP  OUT OF GROUP
+    1   1.47254E+00   7.76133E-01   2.68358E-01   2.95797E-03   1.78960E-03   3.92815E-02   2.26613E-01   3.87864E-02
+    2   1.43952E+00   2.61634E-01   7.97153E-02   1.40890E-04   0.00000E+00   0.00000E+00   7.58315E-02   3.74289E-03
+    3   1.40916E+00   1.23834E+00   5.80280E-01   2.02656E-05   0.00000E+00   0.00000E+00   1.76299E-01   4.03961E-01
+
+ G R O U P   :   9
+ REGION   AVERAGE     INTEGRATED     COLLISION    ABSORPTION    NU*FISSION    PRODUCTION        SCATTERING RATES
+           FLUX          FLUX          RATE          RATE          RATE          RATE      WITHIN GROUP  OUT OF GROUP
+    1   1.10647E+00   5.83187E-01   2.23916E-01   2.66883E-03   1.49573E-03   1.97535E-02   1.90699E-01   3.05480E-02
+    2   1.09111E+00   1.98309E-01   6.96794E-02   1.16698E-04   0.00000E+00   0.00000E+00   6.64612E-02   3.10149E-03
+    3   1.07641E+00   9.45927E-01   5.37880E-01   1.98483E-05   0.00000E+00   0.00000E+00   1.55171E-01   3.82689E-01
+
+ G R O U P   :  10
+ REGION   AVERAGE     INTEGRATED     COLLISION    ABSORPTION    NU*FISSION    PRODUCTION        SCATTERING RATES
+           FLUX          FLUX          RATE          RATE          RATE          RATE      WITHIN GROUP  OUT OF GROUP
+    1   8.98224E-01   4.73429E-01   1.96216E-01   2.72271E-03   1.33524E-03   9.73412E-03   1.68668E-01   2.48244E-02
+    2   8.90698E-01   1.61884E-01   6.26182E-02   1.02729E-04   0.00000E+00   0.00000E+00   5.97059E-02   2.80956E-03
+    3   8.83649E-01   7.76531E-01   5.19607E-01   2.03252E-05   0.00000E+00   0.00000E+00   1.44849E-01   3.74737E-01
+
+ G R O U P   :  11
+ REGION   AVERAGE     INTEGRATED     COLLISION    ABSORPTION    NU*FISSION    PRODUCTION        SCATTERING RATES
+           FLUX          FLUX          RATE          RATE          RATE          RATE      WITHIN GROUP  OUT OF GROUP
+    1   7.63597E-01   4.02471E-01   1.77751E-01   3.38292E-03   1.27749E-03   4.69845E-03   1.55601E-01   1.87667E-02
+    2   7.59602E-01   1.38058E-01   6.08290E-02   1.40116E-04   0.00000E+00   0.00000E+00   5.57294E-02   4.95942E-03
+    3   7.57743E-01   6.65888E-01   5.05419E-01   2.21729E-05   0.00000E+00   0.00000E+00   1.37415E-01   3.67982E-01
+
+ G R O U P   :  12
+ REGION   AVERAGE     INTEGRATED     COLLISION    ABSORPTION    NU*FISSION    PRODUCTION        SCATTERING RATES
+           FLUX          FLUX          RATE          RATE          RATE          RATE      WITHIN GROUP  OUT OF GROUP
+    1   6.92327E-01   3.64906E-01   1.68704E-01   4.01960E-03   1.29054E-03   2.28832E-03   1.48277E-01   1.64074E-02
+    2   6.92145E-01   1.25797E-01   4.40552E-02   1.39385E-04   0.00000E+00   0.00000E+00   4.22972E-02   1.61859E-03
+    3   6.89428E-01   6.05855E-01   5.03623E-01   2.61068E-05   0.00000E+00   0.00000E+00   1.34983E-01   3.68614E-01
+
+ G R O U P   :  13
+ REGION   AVERAGE     INTEGRATED     COLLISION    ABSORPTION    NU*FISSION    PRODUCTION        SCATTERING RATES
+           FLUX          FLUX          RATE          RATE          RATE          RATE      WITHIN GROUP  OUT OF GROUP
+    1   6.34101E-01   3.34217E-01   1.60575E-01   4.42863E-03   1.36034E-03   1.14471E-03   1.40618E-01   1.55285E-02
+    2   6.34750E-01   1.15366E-01   5.40107E-02   1.50111E-04   0.00000E+00   0.00000E+00   5.23905E-02   1.47016E-03
+    3   6.35251E-01   5.58244E-01   4.93907E-01   3.12030E-05   0.00000E+00   0.00000E+00   1.30450E-01   3.63427E-01
+
+ G R O U P   :  14
+ REGION   AVERAGE     INTEGRATED     COLLISION    ABSORPTION    NU*FISSION    PRODUCTION        SCATTERING RATES
+           FLUX          FLUX          RATE          RATE          RATE          RATE      WITHIN GROUP  OUT OF GROUP
+    1   5.99667E-01   3.16068E-01   1.53640E-01   5.01132E-03   1.58521E-03   5.64634E-04   1.33899E-01   1.47299E-02
+    2   6.01032E-01   1.09238E-01   3.80320E-02   1.96822E-04   0.00000E+00   0.00000E+00   3.61075E-02   1.72766E-03
+    3   6.02487E-01   5.29452E-01   4.87963E-01   3.84152E-05   0.00000E+00   0.00000E+00   1.27885E-01   3.60040E-01
+
+ G R O U P   :  15
+ REGION   AVERAGE     INTEGRATED     COLLISION    ABSORPTION    NU*FISSION    PRODUCTION        SCATTERING RATES
+           FLUX          FLUX          RATE          RATE          RATE          RATE      WITHIN GROUP  OUT OF GROUP
+    1   5.76200E-01   3.03699E-01   1.51156E-01   5.95531E-03   1.75774E-03   2.49675E-04   1.30916E-01   1.42852E-02
+    2   5.78459E-01   1.05135E-01   4.67637E-02   3.75371E-04   0.00000E+00   0.00000E+00   4.48339E-02   1.55444E-03
+    3   5.80495E-01   5.10126E-01   4.82569E-01   4.79519E-05   0.00000E+00   0.00000E+00   1.25712E-01   3.56809E-01
+
+ G R O U P   :  16
+ REGION   AVERAGE     INTEGRATED     COLLISION    ABSORPTION    NU*FISSION    PRODUCTION        SCATTERING RATES
+           FLUX          FLUX          RATE          RATE          RATE          RATE      WITHIN GROUP  OUT OF GROUP
+    1   5.08040E-01   2.67774E-01   1.36523E-01   5.82525E-03   2.00773E-03   1.13909E-04   1.16831E-01   1.38673E-02
+    2   5.10402E-01   9.27656E-02   3.95731E-02   5.89002E-04   0.00000E+00   0.00000E+00   3.79816E-02   1.00248E-03
+    3   5.12389E-01   4.50277E-01   4.32712E-01   5.40316E-05   0.00000E+00   0.00000E+00   1.04640E-01   3.28017E-01
+
+ G R O U P   :  17
+ REGION   AVERAGE     INTEGRATED     COLLISION    ABSORPTION    NU*FISSION    PRODUCTION        SCATTERING RATES
+           FLUX          FLUX          RATE          RATE          RATE          RATE      WITHIN GROUP  OUT OF GROUP
+    1   4.92840E-01   2.59762E-01   1.37516E-01   7.46313E-03   2.43088E-03   5.99735E-05   1.16444E-01   1.36091E-02
+    2   4.95802E-01   9.01120E-02   4.25586E-02   3.29267E-04   0.00000E+00   0.00000E+00   4.02775E-02   1.95182E-03
+    3   4.99267E-01   4.38745E-01   4.25674E-01   6.64294E-05   0.00000E+00   0.00000E+00   1.02823E-01   3.22785E-01
+
+ G R O U P   :  18
+ REGION   AVERAGE     INTEGRATED     COLLISION    ABSORPTION    NU*FISSION    PRODUCTION        SCATTERING RATES
+           FLUX          FLUX          RATE          RATE          RATE          RATE      WITHIN GROUP  OUT OF GROUP
+    1   4.88285E-01   2.57361E-01   1.30085E-01   7.43476E-03   2.75280E-03   3.19489E-05   1.09309E-01   1.33409E-02
+    2   4.91627E-01   8.93532E-02   2.76857E-02   3.91414E-04   0.00000E+00   0.00000E+00   2.62843E-02   1.01004E-03
+    3   4.93923E-01   4.34048E-01   4.23722E-01   8.27312E-05   0.00000E+00   0.00000E+00   1.02279E-01   3.21360E-01
+
+ G R O U P   :  19
+ REGION   AVERAGE     INTEGRATED     COLLISION    ABSORPTION    NU*FISSION    PRODUCTION        SCATTERING RATES
+           FLUX          FLUX          RATE          RATE          RATE          RATE      WITHIN GROUP  OUT OF GROUP
+    1   4.76202E-01   2.50993E-01   1.28921E-01   9.83787E-03   3.49844E-03   1.71169E-05   1.06309E-01   1.27741E-02
+    2   4.80356E-01   8.73048E-02   2.16228E-02   2.89474E-05   0.00000E+00   0.00000E+00   2.04975E-02   1.09633E-03
+    3   4.83788E-01   4.25142E-01   4.16682E-01   1.01835E-04   0.00000E+00   0.00000E+00   1.00527E-01   3.16053E-01
+
+ G R O U P   :  20
+ REGION   AVERAGE     INTEGRATED     COLLISION    ABSORPTION    NU*FISSION    PRODUCTION        SCATTERING RATES
+           FLUX          FLUX          RATE          RATE          RATE          RATE      WITHIN GROUP  OUT OF GROUP
+    1   9.16081E-01   4.82841E-01   2.41269E-01   2.40939E-02   1.03101E-02   1.43405E-05   2.04606E-01   1.25691E-02
+    2   9.26729E-01   1.68433E-01   4.74239E-02   4.55160E-04   0.00000E+00   0.00000E+00   4.58318E-02   1.13695E-03
+    3   9.35773E-01   8.22336E-01   8.08735E-01   2.79427E-04   0.00000E+00   0.00000E+00   3.12350E-01   4.96105E-01
+
+ G R O U P   :  21
+ REGION   AVERAGE     INTEGRATED     COLLISION    ABSORPTION    NU*FISSION    PRODUCTION        SCATTERING RATES
+           FLUX          FLUX          RATE          RATE          RATE          RATE      WITHIN GROUP  OUT OF GROUP
+    1   8.69243E-01   4.58153E-01   2.54328E-01   2.88573E-02   1.51148E-02   4.37777E-06   2.13705E-01   1.17658E-02
+    2   8.81425E-01   1.60199E-01   5.38771E-02   2.85320E-03   0.00000E+00   0.00000E+00   4.99473E-02   1.07656E-03
+    3   8.93452E-01   7.85146E-01   7.73996E-01   4.20451E-04   0.00000E+00   0.00000E+00   2.98877E-01   4.74698E-01
+
+ G R O U P   :  22
+ REGION   AVERAGE     INTEGRATED     COLLISION    ABSORPTION    NU*FISSION    PRODUCTION        SCATTERING RATES
+           FLUX          FLUX          RATE          RATE          RATE          RATE      WITHIN GROUP  OUT OF GROUP
+    1   6.12624E-01   3.22897E-01   1.84244E-01   2.97506E-02   1.28351E-02   1.18456E-06   1.43360E-01   1.11333E-02
+    2   6.25925E-01   1.13762E-01   3.19060E-02   1.80680E-04   0.00000E+00   0.00000E+00   3.06885E-02   1.03675E-03
+    3   6.36642E-01   5.59467E-01   5.52148E-01   4.44293E-04   0.00000E+00   0.00000E+00   1.76761E-01   3.74942E-01
+
+ G R O U P   :  23
+ REGION   AVERAGE     INTEGRATED     COLLISION    ABSORPTION    NU*FISSION    PRODUCTION        SCATTERING RATES
+           FLUX          FLUX          RATE          RATE          RATE          RATE      WITHIN GROUP  OUT OF GROUP
+    1   3.94158E-01   2.07750E-01   1.14146E-01   1.99791E-02   1.42200E-02   3.90942E-07   8.33495E-02   1.08177E-02
+    2   4.03113E-01   7.32659E-02   2.06025E-02   5.74701E-05   0.00000E+00   0.00000E+00   1.95355E-02   1.00954E-03
+    3   4.10321E-01   3.60581E-01   3.56088E-01   3.79145E-04   0.00000E+00   0.00000E+00   8.57572E-02   2.69951E-01
+
+ G R O U P   :  24
+ REGION   AVERAGE     INTEGRATED     COLLISION    ABSORPTION    NU*FISSION    PRODUCTION        SCATTERING RATES
+           FLUX          FLUX          RATE          RATE          RATE          RATE      WITHIN GROUP  OUT OF GROUP
+    1   4.37624E-01   2.30659E-01   1.54889E-01   3.61983E-02   1.62959E-02   2.64911E-07   1.09095E-01   9.59492E-03
+    2   4.53987E-01   8.25121E-02   2.33590E-02   9.49856E-05   0.00000E+00   0.00000E+00   2.23283E-02   9.35741E-04
+    3   4.66730E-01   4.10152E-01   4.05275E-01   5.55068E-04   0.00000E+00   0.00000E+00   1.12443E-01   2.92277E-01
+
+ G R O U P   :  25
+ REGION   AVERAGE     INTEGRATED     COLLISION    ABSORPTION    NU*FISSION    PRODUCTION        SCATTERING RATES
+           FLUX          FLUX          RATE          RATE          RATE          RATE      WITHIN GROUP  OUT OF GROUP
+    1   3.95528E-01   2.08472E-01   1.29487E-01   4.32134E-02   1.79511E-02   1.40248E-07   7.77002E-02   8.57373E-03
+    2   4.15074E-01   7.54397E-02   2.13741E-02   2.56021E-05   0.00000E+00   0.00000E+00   2.04910E-02   8.57506E-04
+    3   4.30429E-01   3.78252E-01   3.74041E-01   6.74546E-04   0.00000E+00   0.00000E+00   1.03725E-01   2.69642E-01
+
+ G R O U P   :  26
+ REGION   AVERAGE     INTEGRATED     COLLISION    ABSORPTION    NU*FISSION    PRODUCTION        SCATTERING RATES
+           FLUX          FLUX          RATE          RATE          RATE          RATE      WITHIN GROUP  OUT OF GROUP
+    1   3.75518E-01   1.97925E-01   8.64958E-02   1.27920E-02   1.31355E-02   6.81646E-08   6.42831E-02   9.42075E-03
+    2   3.81560E-01   6.93486E-02   1.96979E-02   3.01432E-05   0.00000E+00   0.00000E+00   1.87622E-02   9.05520E-04
+    3   3.86629E-01   3.39761E-01   3.36300E-01   7.83831E-04   0.00000E+00   0.00000E+00   8.45538E-02   2.50963E-01
+
+ G R O U P   :  27
+ REGION   AVERAGE     INTEGRATED     COLLISION    ABSORPTION    NU*FISSION    PRODUCTION        SCATTERING RATES
+           FLUX          FLUX          RATE          RATE          RATE          RATE      WITHIN GROUP  OUT OF GROUP
+    1   5.63525E-01   2.97018E-01   1.84975E-01   7.07430E-02   1.89655E-02   6.09785E-08   1.06700E-01   7.53243E-03
+    2   5.95390E-01   1.08212E-01   3.09984E-02   2.51558E-04   0.00000E+00   0.00000E+00   2.99944E-02   7.52443E-04
+    3   6.20577E-01   5.45350E-01   5.40876E-01   1.78999E-03   0.00000E+00   0.00000E+00   2.08190E-01   3.30895E-01
+
+ G R O U P   :  28
+ REGION   AVERAGE     INTEGRATED     COLLISION    ABSORPTION    NU*FISSION    PRODUCTION        SCATTERING RATES
+           FLUX          FLUX          RATE          RATE          RATE          RATE      WITHIN GROUP  OUT OF GROUP
+    1   1.39200E-01   7.33686E-02   3.03633E-02   3.31807E-03   3.40841E-03   0.00000E+00   1.92703E-02   7.77502E-03
+    2   1.40560E-01   2.55467E-02   7.27855E-03   1.96840E-05   0.00000E+00   0.00000E+00   6.23635E-03   1.02252E-03
+    3   1.41737E-01   1.24556E-01   1.25059E-01   5.33871E-04   0.00000E+00   0.00000E+00   1.83463E-02   1.06178E-01
+
+ G R O U P   :  29
+ REGION   AVERAGE     INTEGRATED     COLLISION    ABSORPTION    NU*FISSION    PRODUCTION        SCATTERING RATES
+           FLUX          FLUX          RATE          RATE          RATE          RATE      WITHIN GROUP  OUT OF GROUP
+    1   1.72190E-01   9.07564E-02   3.68825E-02   2.96671E-03   3.65482E-03   0.00000E+00   2.47603E-02   9.15541E-03
+    2   1.73786E-01   3.15855E-02   9.00765E-03   3.05595E-05   0.00000E+00   0.00000E+00   7.64999E-03   1.32710E-03
+    3   1.75200E-01   1.53962E-01   1.55124E-01   7.34836E-04   0.00000E+00   0.00000E+00   2.72732E-02   1.27116E-01
+
+ G R O U P   :  30
+ REGION   AVERAGE     INTEGRATED     COLLISION    ABSORPTION    NU*FISSION    PRODUCTION        SCATTERING RATES
+           FLUX          FLUX          RATE          RATE          RATE          RATE      WITHIN GROUP  OUT OF GROUP
+    1   1.58424E-01   8.35010E-02   3.32997E-02   1.78919E-03   1.61983E-03   0.00000E+00   2.23147E-02   9.19582E-03
+    2   1.59143E-01   2.89242E-02   8.32061E-03   7.98535E-05   0.00000E+00   0.00000E+00   6.82297E-03   1.41778E-03
+    3   1.59864E-01   1.40485E-01   1.42187E-01   7.50825E-04   0.00000E+00   0.00000E+00   2.41623E-02   1.17274E-01
+
+ G R O U P   :  31
+ REGION   AVERAGE     INTEGRATED     COLLISION    ABSORPTION    NU*FISSION    PRODUCTION        SCATTERING RATES
+           FLUX          FLUX          RATE          RATE          RATE          RATE      WITHIN GROUP  OUT OF GROUP
+    1   2.51421E-01   1.32517E-01   5.41695E-02   3.78629E-03   3.56773E-03   0.00000E+00   3.96297E-02   1.07536E-02
+    2   2.53007E-01   4.59841E-02   1.31298E-02   5.65359E-05   0.00000E+00   0.00000E+00   1.16727E-02   1.40054E-03
+    3   2.54259E-01   2.23437E-01   2.27761E-01   1.37110E-03   0.00000E+00   0.00000E+00   5.47605E-02   1.71629E-01
+
+ G R O U P   :  32
+ REGION   AVERAGE     INTEGRATED     COLLISION    ABSORPTION    NU*FISSION    PRODUCTION        SCATTERING RATES
+           FLUX          FLUX          RATE          RATE          RATE          RATE      WITHIN GROUP  OUT OF GROUP
+    1   1.07231E-01   5.65185E-02   2.32519E-02   1.65295E-03   1.90089E-03   0.00000E+00   1.25918E-02   9.00719E-03
+    2   1.07998E-01   1.96286E-02   5.60946E-03   2.85697E-05   0.00000E+00   0.00000E+00   3.99237E-03   1.58852E-03
+    3   1.08760E-01   9.55756E-02   9.81848E-02   6.60874E-04   0.00000E+00   0.00000E+00   1.44759E-02   8.30480E-02
+
+ G R O U P   :  33
+ REGION   AVERAGE     INTEGRATED     COLLISION    ABSORPTION    NU*FISSION    PRODUCTION        SCATTERING RATES
+           FLUX          FLUX          RATE          RATE          RATE          RATE      WITHIN GROUP  OUT OF GROUP
+    1   8.97257E-02   4.72919E-02   2.12166E-02   3.10038E-03   4.40969E-03   0.00000E+00   9.64393E-03   8.47228E-03
+    2   9.10904E-02   1.65557E-02   4.74707E-03   3.87314E-05   0.00000E+00   0.00000E+00   3.23076E-03   1.47758E-03
+    3   9.22024E-02   8.10254E-02   8.37198E-02   5.98572E-04   0.00000E+00   0.00000E+00   1.14805E-02   7.16407E-02
+
+ G R O U P   :  34
+ REGION   AVERAGE     INTEGRATED     COLLISION    ABSORPTION    NU*FISSION    PRODUCTION        SCATTERING RATES
+           FLUX          FLUX          RATE          RATE          RATE          RATE      WITHIN GROUP  OUT OF GROUP
+    1   1.71627E-02   9.04597E-03   4.42954E-03   9.61730E-04   1.57839E-03   0.00000E+00   6.11965E-04   2.85585E-03
+    2   1.74893E-02   3.17868E-03   9.28966E-04   2.43866E-05   0.00000E+00   0.00000E+00   1.97990E-04   7.06590E-04
+    3   1.77589E-02   1.56061E-02   1.61798E-02   1.19571E-04   0.00000E+00   0.00000E+00   6.58178E-04   1.54020E-02
+
+ G R O U P   :  35
+ REGION   AVERAGE     INTEGRATED     COLLISION    ABSORPTION    NU*FISSION    PRODUCTION        SCATTERING RATES
+           FLUX          FLUX          RATE          RATE          RATE          RATE      WITHIN GROUP  OUT OF GROUP
+    1   1.68695E-02   8.89146E-03   4.33939E-03   9.30462E-04   1.56725E-03   0.00000E+00   5.81430E-04   2.82750E-03
+    2   1.72015E-02   3.12637E-03   9.23320E-04   3.33303E-05   0.00000E+00   0.00000E+00   1.87985E-04   7.02005E-04
+    3   1.74881E-02   1.53682E-02   1.59429E-02   1.19139E-04   0.00000E+00   0.00000E+00   6.44035E-04   1.51797E-02
+
+ G R O U P   :  36
+ REGION   AVERAGE     INTEGRATED     COLLISION    ABSORPTION    NU*FISSION    PRODUCTION        SCATTERING RATES
+           FLUX          FLUX          RATE          RATE          RATE          RATE      WITHIN GROUP  OUT OF GROUP
+    1   1.73149E-02   9.12619E-03   4.38139E-03   8.81904E-04   1.50902E-03   0.00000E+00   6.03121E-04   2.89636E-03
+    2   1.76451E-02   3.20701E-03   9.47252E-04   3.43138E-05   0.00000E+00   0.00000E+00   1.95035E-04   7.17904E-04
+    3   1.79379E-02   1.57634E-02   1.63774E-02   1.23661E-04   0.00000E+00   0.00000E+00   6.76617E-04   1.55771E-02
+
+ G R O U P   :  37
+ REGION   AVERAGE     INTEGRATED     COLLISION    ABSORPTION    NU*FISSION    PRODUCTION        SCATTERING RATES
+           FLUX          FLUX          RATE          RATE          RATE          RATE      WITHIN GROUP  OUT OF GROUP
+    1   1.79100E-02   9.43984E-03   4.43878E-03   8.18179E-04   1.41065E-03   0.00000E+00   6.70197E-04   2.95040E-03
+    2   1.82201E-02   3.31150E-03   9.68297E-04   2.59107E-05   0.00000E+00   0.00000E+00   2.18924E-04   7.23462E-04
+    3   1.84821E-02   1.62417E-02   1.69142E-02   1.28973E-04   0.00000E+00   0.00000E+00   7.12905E-04   1.60723E-02
+
+ G R O U P   :  38
+ REGION   AVERAGE     INTEGRATED     COLLISION    ABSORPTION    NU*FISSION    PRODUCTION        SCATTERING RATES
+           FLUX          FLUX          RATE          RATE          RATE          RATE      WITHIN GROUP  OUT OF GROUP
+    1   1.77072E-02   9.33295E-03   4.30779E-03   7.27183E-04   1.25564E-03   0.00000E+00   6.11318E-04   2.96929E-03
+    2   1.80025E-02   3.27196E-03   9.47527E-04   1.66702E-05   0.00000E+00   0.00000E+00   1.97184E-04   7.33672E-04
+    3   1.82598E-02   1.60463E-02   1.67242E-02   1.29003E-04   0.00000E+00   0.00000E+00   6.99305E-04   1.58959E-02
+
+ G R O U P   :  39
+ REGION   AVERAGE     INTEGRATED     COLLISION    ABSORPTION    NU*FISSION    PRODUCTION        SCATTERING RATES
+           FLUX          FLUX          RATE          RATE          RATE          RATE      WITHIN GROUP  OUT OF GROUP
+    1   1.75743E-02   9.26289E-03   4.21575E-03   6.60953E-04   1.13906E-03   0.00000E+00   6.11274E-04   2.94352E-03
+    2   1.78433E-02   3.24302E-03   9.34018E-04   1.15411E-05   0.00000E+00   0.00000E+00   1.97907E-04   7.24570E-04
+    3   1.80713E-02   1.58807E-02   1.65607E-02   1.29184E-04   0.00000E+00   0.00000E+00   6.86109E-04   1.57454E-02
+
+ G R O U P   :  40
+ REGION   AVERAGE     INTEGRATED     COLLISION    ABSORPTION    NU*FISSION    PRODUCTION        SCATTERING RATES
+           FLUX          FLUX          RATE          RATE          RATE          RATE      WITHIN GROUP  OUT OF GROUP
+    1   1.80720E-02   9.52523E-03   4.29123E-03   6.34600E-04   1.08977E-03   0.00000E+00   6.17768E-04   3.03886E-03
+    2   1.83363E-02   3.33263E-03   9.57201E-04   9.29704E-06   0.00000E+00   0.00000E+00   1.98873E-04   7.49032E-04
+    3   1.85640E-02   1.63136E-02   1.70385E-02   1.34328E-04   0.00000E+00   0.00000E+00   7.21764E-04   1.61824E-02
+
+ G R O U P   :  41
+ REGION   AVERAGE     INTEGRATED     COLLISION    ABSORPTION    NU*FISSION    PRODUCTION        SCATTERING RATES
+           FLUX          FLUX          RATE          RATE          RATE          RATE      WITHIN GROUP  OUT OF GROUP
+    1   1.70550E-02   8.98921E-03   4.02143E-03   5.69509E-04   9.74267E-04   0.00000E+00   5.49282E-04   2.90264E-03
+    2   1.72895E-02   3.14237E-03   9.01307E-04   7.53737E-06   0.00000E+00   0.00000E+00   1.76724E-04   7.17046E-04
+    3   1.74881E-02   1.53682E-02   1.60891E-02   1.28057E-04   0.00000E+00   0.00000E+00   6.47574E-04   1.53134E-02
+
+ G R O U P   :  42
+ REGION   AVERAGE     INTEGRATED     COLLISION    ABSORPTION    NU*FISSION    PRODUCTION        SCATTERING RATES
+           FLUX          FLUX          RATE          RATE          RATE          RATE      WITHIN GROUP  OUT OF GROUP
+    1   3.22617E-02   1.70042E-02   7.56003E-03   1.02755E-03   1.74949E-03   0.00000E+00   1.76836E-03   4.76412E-03
+    2   3.26853E-02   5.94057E-03   1.70223E-03   1.25858E-05   0.00000E+00   0.00000E+00   5.76253E-04   1.11339E-03
+    3   3.30390E-02   2.90340E-02   3.04394E-02   2.45925E-04   0.00000E+00   0.00000E+00   2.03669E-03   2.81568E-02
+
+ G R O U P   :  43
+ REGION   AVERAGE     INTEGRATED     COLLISION    ABSORPTION    NU*FISSION    PRODUCTION        SCATTERING RATES
+           FLUX          FLUX          RATE          RATE          RATE          RATE      WITHIN GROUP  OUT OF GROUP
+    1   5.15455E-02   2.71682E-02   1.20205E-02   1.57631E-03   2.66876E-03   0.00000E+00   3.87028E-03   6.57386E-03
+    2   5.21925E-02   9.48599E-03   2.71634E-03   1.81969E-05   0.00000E+00   0.00000E+00   1.25437E-03   1.44377E-03
+    3   5.27376E-02   4.63447E-02   4.87585E-02   4.03665E-04   0.00000E+00   0.00000E+00   4.67177E-03   4.36831E-02
+
+ G R O U P   :  44
+ REGION   AVERAGE     INTEGRATED     COLLISION    ABSORPTION    NU*FISSION    PRODUCTION        SCATTERING RATES
+           FLUX          FLUX          RATE          RATE          RATE          RATE      WITHIN GROUP  OUT OF GROUP
+    1   6.55251E-02   3.45364E-02   1.52752E-02   1.98663E-03   3.35384E-03   0.00000E+00   5.50140E-03   7.78712E-03
+    2   6.63478E-02   1.20587E-02   3.45213E-03   2.21129E-05   0.00000E+00   0.00000E+00   1.77690E-03   1.65312E-03
+    3   6.70530E-02   5.89247E-02   6.22903E-02   5.33454E-04   0.00000E+00   0.00000E+00   7.16582E-03   5.45910E-02
+
+ G R O U P   :  45
+ REGION   AVERAGE     INTEGRATED     COLLISION    ABSORPTION    NU*FISSION    PRODUCTION        SCATTERING RATES
+           FLUX          FLUX          RATE          RATE          RATE          RATE      WITHIN GROUP  OUT OF GROUP
+    1   1.72013E-01   9.06631E-02   4.05284E-02   5.58649E-03   9.49052E-03   0.00000E+00   2.20190E-02   1.29228E-02
+    2   1.74238E-01   3.16678E-02   9.06703E-03   5.88894E-05   0.00000E+00   0.00000E+00   6.78933E-03   2.21881E-03
+    3   1.76294E-01   1.54924E-01   1.65598E-01   1.51534E-03   0.00000E+00   0.00000E+00   3.73688E-02   1.26714E-01
+
+ G R O U P   :  46
+ REGION   AVERAGE     INTEGRATED     COLLISION    ABSORPTION    NU*FISSION    PRODUCTION        SCATTERING RATES
+           FLUX          FLUX          RATE          RATE          RATE          RATE      WITHIN GROUP  OUT OF GROUP
+    1   1.79699E-01   9.47144E-02   4.36016E-02   7.01959E-03   1.21674E-02   0.00000E+00   2.23710E-02   1.42111E-02
+    2   1.82524E-01   3.31738E-02   9.50420E-03   6.66911E-05   0.00000E+00   0.00000E+00   7.14858E-03   2.28893E-03
+    3   1.84742E-01   1.62347E-01   1.77390E-01   1.77434E-03   0.00000E+00   0.00000E+00   4.16702E-02   1.33946E-01
+
+ G R O U P   :  47
+ REGION   AVERAGE     INTEGRATED     COLLISION    ABSORPTION    NU*FISSION    PRODUCTION        SCATTERING RATES
+           FLUX          FLUX          RATE          RATE          RATE          RATE      WITHIN GROUP  OUT OF GROUP
+    1   1.88596E-01   9.94039E-02   4.81524E-02   9.68328E-03   1.71717E-02   0.00000E+00   2.32081E-02   1.52610E-02
+    2   1.92319E-01   3.49540E-02   1.00230E-02   7.76341E-05   0.00000E+00   0.00000E+00   7.29725E-03   2.64816E-03
+    3   1.95494E-01   1.71796E-01   1.93979E-01   2.10075E-03   0.00000E+00   0.00000E+00   4.64354E-02   1.45443E-01
+
+ G R O U P   :  48
+ REGION   AVERAGE     INTEGRATED     COLLISION    ABSORPTION    NU*FISSION    PRODUCTION        SCATTERING RATES
+           FLUX          FLUX          RATE          RATE          RATE          RATE      WITHIN GROUP  OUT OF GROUP
+    1   1.20586E-01   6.35574E-02   3.29067E-02   8.27267E-03   1.48425E-02   0.00000E+00   1.12242E-02   1.34099E-02
+    2   1.23715E-01   2.24853E-02   6.45290E-03   5.42458E-05   0.00000E+00   0.00000E+00   3.67643E-03   2.72222E-03
+    3   1.26288E-01   1.10979E-01   1.29392E-01   1.48195E-03   0.00000E+00   0.00000E+00   2.17634E-02   1.06147E-01
+
+ G R O U P   :  49
+ REGION   AVERAGE     INTEGRATED     COLLISION    ABSORPTION    NU*FISSION    PRODUCTION        SCATTERING RATES
+           FLUX          FLUX          RATE          RATE          RATE          RATE      WITHIN GROUP  OUT OF GROUP
+    1   8.53311E-02   4.49756E-02   2.46167E-02   7.16919E-03   1.28593E-02   0.00000E+00   5.90170E-03   1.15458E-02
+    2   8.80702E-02   1.60068E-02   4.59618E-03   4.07281E-05   0.00000E+00   0.00000E+00   1.94216E-03   2.61329E-03
+    3   9.03428E-02   7.93913E-02   9.44802E-02   1.12057E-03   0.00000E+00   0.00000E+00   1.17676E-02   8.15921E-02
+
+ G R O U P   :  50
+ REGION   AVERAGE     INTEGRATED     COLLISION    ABSORPTION    NU*FISSION    PRODUCTION        SCATTERING RATES
+           FLUX          FLUX          RATE          RATE          RATE          RATE      WITHIN GROUP  OUT OF GROUP
+    1   6.42362E-02   3.38571E-02   1.91974E-02   6.05560E-03   1.08138E-02   0.00000E+00   3.36137E-03   9.78041E-03
+    2   6.65647E-02   1.20981E-02   3.47523E-03   3.19502E-05   0.00000E+00   0.00000E+00   1.12311E-03   2.32017E-03
+    3   6.84713E-02   6.01710E-02   7.28337E-02   8.82566E-04   0.00000E+00   0.00000E+00   6.99283E-03   6.49583E-02
+
+ G R O U P   :  51
+ REGION   AVERAGE     INTEGRATED     COLLISION    ABSORPTION    NU*FISSION    PRODUCTION        SCATTERING RATES
+           FLUX          FLUX          RATE          RATE          RATE          RATE      WITHIN GROUP  OUT OF GROUP
+    1   7.20412E-02   3.79709E-02   2.19596E-02   7.21385E-03   1.28067E-02   0.00000E+00   3.90406E-03   1.08416E-02
+    2   7.48253E-02   1.35995E-02   3.90805E-03   3.71102E-05   0.00000E+00   0.00000E+00   1.30677E-03   2.56417E-03
+    3   7.71020E-02   6.77555E-02   8.32024E-02   1.02775E-03   0.00000E+00   0.00000E+00   8.40163E-03   7.37730E-02
+
+ G R O U P   :  52
+ REGION   AVERAGE     INTEGRATED     COLLISION    ABSORPTION    NU*FISSION    PRODUCTION        SCATTERING RATES
+           FLUX          FLUX          RATE          RATE          RATE          RATE      WITHIN GROUP  OUT OF GROUP
+    1   1.27715E-01   6.73152E-02   3.91710E-02   1.30113E-02   2.29165E-02   0.00000E+00   9.67015E-03   1.64895E-02
+    2   1.32801E-01   2.41366E-02   6.93976E-03   6.89081E-05   0.00000E+00   0.00000E+00   3.24475E-03   3.62611E-03
+    3   1.36975E-01   1.20370E-01   1.50708E-01   1.91206E-03   0.00000E+00   0.00000E+00   2.22212E-02   1.26574E-01
+
+ G R O U P   :  53
+ REGION   AVERAGE     INTEGRATED     COLLISION    ABSORPTION    NU*FISSION    PRODUCTION        SCATTERING RATES
+           FLUX          FLUX          RATE          RATE          RATE          RATE      WITHIN GROUP  OUT OF GROUP
+    1   1.60094E-01   8.43811E-02   4.86246E-02   1.57990E-02   2.76774E-02   0.00000E+00   1.25894E-02   2.02362E-02
+    2   1.66401E-01   3.02433E-02   8.70213E-03   9.16375E-05   0.00000E+00   0.00000E+00   4.21117E-03   4.39933E-03
+    3   1.71647E-01   1.50839E-01   1.93819E-01   2.54567E-03   0.00000E+00   0.00000E+00   3.11395E-02   1.60134E-01
+
+ G R O U P   :  54
+ REGION   AVERAGE     INTEGRATED     COLLISION    ABSORPTION    NU*FISSION    PRODUCTION        SCATTERING RATES
+           FLUX          FLUX          RATE          RATE          RATE          RATE      WITHIN GROUP  OUT OF GROUP
+    1   2.84498E-01   1.49951E-01   8.58476E-02   2.74222E-02   4.82041E-02   0.00000E+00   2.83050E-02   3.01205E-02
+    2   2.95785E-01   5.37590E-02   1.54862E-02   1.76813E-04   0.00000E+00   0.00000E+00   9.33298E-03   5.97637E-03
+    3   3.05253E-01   2.68250E-01   3.57822E-01   4.91980E-03   0.00000E+00   0.00000E+00   7.96637E-02   2.73238E-01
+
+ G R O U P   :  55
+ REGION   AVERAGE     INTEGRATED     COLLISION    ABSORPTION    NU*FISSION    PRODUCTION        SCATTERING RATES
+           FLUX          FLUX          RATE          RATE          RATE          RATE      WITHIN GROUP  OUT OF GROUP
+    1   3.93979E-01   2.07655E-01   1.21336E-01   4.02212E-02   7.16115E-02   0.00000E+00   4.19244E-02   3.91901E-02
+    2   4.11391E-01   7.47703E-02   2.15758E-02   2.75064E-04   0.00000E+00   0.00000E+00   1.38531E-02   7.44768E-03
+    3   4.25971E-01   3.74334E-01   5.26711E-01   7.68805E-03   0.00000E+00   0.00000E+00   1.35778E-01   3.83245E-01
+
+ G R O U P   :  56
+ REGION   AVERAGE     INTEGRATED     COLLISION    ABSORPTION    NU*FISSION    PRODUCTION        SCATTERING RATES
+           FLUX          FLUX          RATE          RATE          RATE          RATE      WITHIN GROUP  OUT OF GROUP
+    1   5.28005E-01   2.78296E-01   1.71793E-01   6.26598E-02   1.13309E-01   0.00000E+00   6.08478E-02   4.82855E-02
+    2   5.56413E-01   1.01128E-01   2.92579E-02   4.30122E-04   0.00000E+00   0.00000E+00   2.00927E-02   8.73509E-03
+    3   5.80132E-01   5.09808E-01   7.70301E-01   1.21189E-02   0.00000E+00   0.00000E+00   2.37315E-01   5.20868E-01
+
+ G R O U P   :  57
+ REGION   AVERAGE     INTEGRATED     COLLISION    ABSORPTION    NU*FISSION    PRODUCTION        SCATTERING RATES
+           FLUX          FLUX          RATE          RATE          RATE          RATE      WITHIN GROUP  OUT OF GROUP
+    1   3.11029E-01   1.63935E-01   1.08103E-01   4.35229E-02   7.95660E-02   0.00000E+00   2.63582E-02   3.82224E-02
+    2   3.31370E-01   6.02265E-02   1.74746E-02   2.93836E-04   0.00000E+00   0.00000E+00   9.05860E-03   8.12216E-03
+    3   3.48273E-01   3.06055E-01   4.96002E-01   8.35109E-03   0.00000E+00   0.00000E+00   1.08061E-01   3.79589E-01
+
+ G R O U P   :  58
+ REGION   AVERAGE     INTEGRATED     COLLISION    ABSORPTION    NU*FISSION    PRODUCTION        SCATTERING RATES
+           FLUX          FLUX          RATE          RATE          RATE          RATE      WITHIN GROUP  OUT OF GROUP
+    1   2.11733E-01   1.11598E-01   7.75952E-02   3.34528E-02   6.14969E-02   0.00000E+00   1.42930E-02   2.98495E-02
+    2   2.27627E-01   4.13712E-02   1.20332E-02   2.23020E-04   0.00000E+00   0.00000E+00   4.99036E-03   6.81982E-03
+    3   2.40857E-01   2.11660E-01   3.61874E-01   6.38342E-03   0.00000E+00   0.00000E+00   6.34427E-02   2.92047E-01
+
+ G R O U P   :  59
+ REGION   AVERAGE     INTEGRATED     COLLISION    ABSORPTION    NU*FISSION    PRODUCTION        SCATTERING RATES
+           FLUX          FLUX          RATE          RATE          RATE          RATE      WITHIN GROUP  OUT OF GROUP
+    1   1.47074E-01   7.75187E-02   5.63750E-02   2.55952E-02   4.72085E-02   0.00000E+00   7.97128E-03   2.28085E-02
+    2   1.59346E-01   2.89611E-02   8.44230E-03   1.69137E-04   0.00000E+00   0.00000E+00   2.81060E-03   5.46257E-03
+    3   1.69558E-01   1.49004E-01   2.66473E-01   4.86952E-03   0.00000E+00   0.00000E+00   3.82115E-02   2.23392E-01
+
+ G R O U P   :  60
+ REGION   AVERAGE     INTEGRATED     COLLISION    ABSORPTION    NU*FISSION    PRODUCTION        SCATTERING RATES
+           FLUX          FLUX          RATE          RATE          RATE          RATE      WITHIN GROUP  OUT OF GROUP
+    1   1.28119E-01   6.75279E-02   5.12314E-02   2.43132E-02   4.49422E-02   0.00000E+00   6.70535E-03   2.02129E-02
+    2   1.39850E-01   2.54177E-02   7.42603E-03   1.59657E-04   0.00000E+00   0.00000E+00   2.38279E-03   4.88358E-03
+    3   1.49610E-01   1.31474E-01   2.45404E-01   4.62200E-03   0.00000E+00   0.00000E+00   3.45358E-02   2.06246E-01
+
+ G R O U P   :  61
+ REGION   AVERAGE     INTEGRATED     COLLISION    ABSORPTION    NU*FISSION    PRODUCTION        SCATTERING RATES
+           FLUX          FLUX          RATE          RATE          RATE          RATE      WITHIN GROUP  OUT OF GROUP
+    1   1.22513E-01   6.45732E-02   5.14051E-02   2.55313E-02   4.72689E-02   0.00000E+00   6.83777E-03   1.90361E-02
+    2   1.34893E-01   2.45168E-02   7.18260E-03   1.66854E-04   0.00000E+00   0.00000E+00   2.45123E-03   4.56452E-03
+    3   1.45189E-01   1.27589E-01   2.50438E-01   4.86045E-03   0.00000E+00   0.00000E+00   3.79776E-02   2.07600E-01
+
+ G R O U P   :  62
+ REGION   AVERAGE     INTEGRATED     COLLISION    ABSORPTION    NU*FISSION    PRODUCTION        SCATTERING RATES
+           FLUX          FLUX          RATE          RATE          RATE          RATE      WITHIN GROUP  OUT OF GROUP
+    1   9.97919E-02   5.25975E-02   4.42376E-02   2.30234E-02   4.26644E-02   0.00000E+00   5.37848E-03   1.58356E-02
+    2   1.11006E-01   2.01754E-02   5.93030E-03   1.50040E-04   0.00000E+00   0.00000E+00   1.94821E-03   3.83205E-03
+    3   1.20332E-01   1.05745E-01   2.20010E-01   4.40246E-03   0.00000E+00   0.00000E+00   3.25174E-02   1.83090E-01
+
+ G R O U P   :  63
+ REGION   AVERAGE     INTEGRATED     COLLISION    ABSORPTION    NU*FISSION    PRODUCTION        SCATTERING RATES
+           FLUX          FLUX          RATE          RATE          RATE          RATE      WITHIN GROUP  OUT OF GROUP
+    1   6.53490E-02   3.44436E-02   3.05715E-02   1.65780E-02   3.07241E-02   0.00000E+00   2.86293E-03   1.11306E-02
+    2   7.34536E-02   1.33502E-02   3.93811E-03   1.08026E-04   0.00000E+00   0.00000E+00   1.04753E-03   2.78256E-03
+    3   8.01942E-02   7.04729E-02   1.55445E-01   3.19263E-03   0.00000E+00   0.00000E+00   1.89102E-02   1.33342E-01
+
+ G R O U P   :  64
+ REGION   AVERAGE     INTEGRATED     COLLISION    ABSORPTION    NU*FISSION    PRODUCTION        SCATTERING RATES
+           FLUX          FLUX          RATE          RATE          RATE          RATE      WITHIN GROUP  OUT OF GROUP
+    1   5.90049E-02   3.10998E-02   2.91587E-02   1.64163E-02   3.04105E-02   0.00000E+00   2.77375E-03   9.96858E-03
+    2   6.70570E-02   1.21876E-02   3.60925E-03   1.07198E-04   0.00000E+00   0.00000E+00   1.02654E-03   2.47550E-03
+    3   7.37582E-02   6.48171E-02   1.51929E-01   3.19216E-03   0.00000E+00   0.00000E+00   1.97583E-02   1.28979E-01
+
+ G R O U P   :  65
+ REGION   AVERAGE     INTEGRATED     COLLISION    ABSORPTION    NU*FISSION    PRODUCTION        SCATTERING RATES
+           FLUX          FLUX          RATE          RATE          RATE          RATE      WITHIN GROUP  OUT OF GROUP
+    1   5.12674E-02   2.70216E-02   2.71144E-02   1.59085E-02   2.94384E-02   0.00000E+00   2.61802E-03   8.58786E-03
+    2   5.90997E-02   1.07414E-02   3.19793E-03   1.04429E-04   0.00000E+00   0.00000E+00   9.83009E-04   2.11049E-03
+    3   6.56261E-02   5.76708E-02   1.45971E-01   3.13966E-03   0.00000E+00   0.00000E+00   2.04453E-02   1.22386E-01
+
+ G R O U P   :  66
+ REGION   AVERAGE     INTEGRATED     COLLISION    ABSORPTION    NU*FISSION    PRODUCTION        SCATTERING RATES
+           FLUX          FLUX          RATE          RATE          RATE          RATE      WITHIN GROUP  OUT OF GROUP
+    1   4.20240E-02   2.21497E-02   2.42800E-02   1.49226E-02   2.75673E-02   0.00000E+00   2.37539E-03   6.98195E-03
+    2   4.94059E-02   8.97953E-03   2.69441E-03   9.89928E-05   0.00000E+00   0.00000E+00   9.09364E-04   1.68606E-03
+    3   5.55686E-02   4.88324E-02   1.36718E-01   3.01485E-03   0.00000E+00   0.00000E+00   2.08585E-02   1.12844E-01
+
+ G R O U P   :  67
+ REGION   AVERAGE     INTEGRATED     COLLISION    ABSORPTION    NU*FISSION    PRODUCTION        SCATTERING RATES
+           FLUX          FLUX          RATE          RATE          RATE          RATE      WITHIN GROUP  OUT OF GROUP
+    1   3.11908E-02   1.64398E-02   2.03931E-02   1.32228E-02   2.43752E-02   0.00000E+00   2.00636E-03   5.16397E-03
+    2   3.77811E-02   6.86673E-03   2.08724E-03   8.95194E-05   0.00000E+00   0.00000E+00   7.90609E-04   1.20711E-03
+    3   4.32986E-02   3.80499E-02   1.22638E-01   2.77817E-03   0.00000E+00   0.00000E+00   2.07141E-02   9.91455E-02
+
+ G R O U P   :  68
+ REGION   AVERAGE     INTEGRATED     COLLISION    ABSORPTION    NU*FISSION    PRODUCTION        SCATTERING RATES
+           FLUX          FLUX          RATE          RATE          RATE          RATE      WITHIN GROUP  OUT OF GROUP
+    1   1.88226E-02   9.92084E-03   1.49944E-02   1.03715E-02   1.90819E-02   0.00000E+00   1.44879E-03   3.17408E-03
+    2   2.40740E-02   4.37545E-03   1.36545E-03   7.33748E-05   0.00000E+00   0.00000E+00   6.01312E-04   6.90759E-04
+    3   2.84865E-02   2.50333E-02   1.00392E-01   2.35137E-03   0.00000E+00   0.00000E+00   1.93140E-02   7.87269E-02
+
+ G R O U P   :  69
+ REGION   AVERAGE     INTEGRATED     COLLISION    ABSORPTION    NU*FISSION    PRODUCTION        SCATTERING RATES
+           FLUX          FLUX          RATE          RATE          RATE          RATE      WITHIN GROUP  OUT OF GROUP
+    1   5.54320E-03   2.92166E-03   6.78562E-03   5.09825E-03   9.37309E-03   0.00000E+00   5.49880E-04   1.13749E-03
+    2   8.23714E-03   1.49710E-03   5.17499E-04   4.14377E-05   0.00000E+00   0.00000E+00   2.64656E-04   2.11405E-04
+    3   1.04846E-02   9.21360E-03   5.78340E-02   1.42850E-03   0.00000E+00   0.00000E+00   1.24849E-02   4.39206E-02
+
+ MERGED/CONDENSED SET OF X-S SAVED IN LCM DIRECTORY 'REF-CASE0001'.
+
+
+ F L U X E S   A N D   H O M O G E N I Z E D   X - S
+ ---------------------------------------------------
+
+ G R O U P   :   1
+ REGION   AVERAGE         NTOT0       ABSORPTION     NUSIGF        FISSION          SCATTERING X-S
+           FLUX            X-S           X-S          X-S          SPECTRUM  WITHIN GROUP  OUT OF GROUP
+    1   2.34181E-01   1.32393E-01   1.53429E-02   7.20088E-02   2.65777E-02   3.91936E-02   7.78569E-02
+    2   2.27425E-01   1.00771E-01  -6.21054E-04   0.00000E+00   0.00000E+00   2.56843E-02   7.57077E-02
+    3   2.22766E-01   7.96693E-02   3.59565E-03   0.00000E+00   0.00000E+00   1.85218E-02   5.75518E-02
+
+ FLUX DISADVANTAGE FACTOR =   1.03123E+00
+
+ G R O U P   :   2
+ REGION   AVERAGE         NTOT0       ABSORPTION     NUSIGF        FISSION          SCATTERING X-S
+           FLUX            X-S           X-S          X-S          SPECTRUM  WITHIN GROUP  OUT OF GROUP
+    1   9.41564E-01   1.73346E-01   1.62547E-02   3.95844E-02   1.12121E-01   7.88262E-02   7.82652E-02
+    2   9.12010E-01   1.14360E-01   1.85390E-04   0.00000E+00   0.00000E+00   4.00561E-02   7.41181E-02
+    3   8.92863E-01   1.18000E-01   1.44856E-03   0.00000E+00   0.00000E+00   4.07432E-02   7.58081E-02
+
+ FLUX DISADVANTAGE FACTOR =   1.03330E+00
+
+ G R O U P   :   3
+ REGION   AVERAGE         NTOT0       ABSORPTION     NUSIGF        FISSION          SCATTERING X-S
+           FLUX            X-S           X-S          X-S          SPECTRUM  WITHIN GROUP  OUT OF GROUP
+    1   2.01098E+00   1.69796E-01   1.34395E-02   3.48104E-02   2.11529E-01   8.90830E-02   6.72739E-02
+    2   1.95039E+00   1.30480E-01   2.97638E-04   0.00000E+00   0.00000E+00   6.64544E-02   6.37278E-02
+    3   1.90898E+00   1.38311E-01   1.46563E-05   0.00000E+00   0.00000E+00   4.73849E-02   9.09113E-02
+
+ FLUX DISADVANTAGE FACTOR =   1.03255E+00
+
+ G R O U P   :   4
+ REGION   AVERAGE         NTOT0       ABSORPTION     NUSIGF        FISSION          SCATTERING X-S
+           FLUX            X-S           X-S          X-S          SPECTRUM  WITHIN GROUP  OUT OF GROUP
+    1   2.18205E+00   2.00755E-01   1.19224E-02   2.73750E-02   2.28629E-01   1.10097E-01   7.87357E-02
+    2   2.12002E+00   1.42960E-01   5.05474E-04   0.00000E+00   0.00000E+00   1.12848E-01   2.96063E-02
+    3   2.06853E+00   1.83608E-01   9.41067E-06   0.00000E+00   0.00000E+00   5.97331E-02   1.23866E-01
+
+ FLUX DISADVANTAGE FACTOR =   1.03311E+00
+
+ G R O U P   :   5
+ REGION   AVERAGE         NTOT0       ABSORPTION     NUSIGF        FISSION          SCATTERING X-S
+           FLUX            X-S           X-S          X-S          SPECTRUM  WITHIN GROUP  OUT OF GROUP
+    1   2.10158E+00   2.89772E-01   4.12516E-03   3.91179E-03   1.76036E-01   2.03171E-01   8.24760E-02
+    2   2.04060E+00   1.73181E-01   4.87861E-04   0.00000E+00   0.00000E+00   1.55489E-01   1.72045E-02
+    3   1.98662E+00   2.68910E-01   4.67743E-06   0.00000E+00   0.00000E+00   9.96412E-02   1.69264E-01
+
+ FLUX DISADVANTAGE FACTOR =   1.03477E+00
+
+ G R O U P   :   6
+ REGION   AVERAGE         NTOT0       ABSORPTION     NUSIGF        FISSION          SCATTERING X-S
+           FLUX            X-S           X-S          X-S          SPECTRUM  WITHIN GROUP  OUT OF GROUP
+    1   2.40106E+00   2.65195E-01   3.49257E-03   2.12930E-03   1.12353E-01   2.25446E-01   3.62562E-02
+    2   2.33073E+00   2.19740E-01   5.51252E-04   0.00000E+00   0.00000E+00   2.11254E-01   7.93489E-03
+    3   2.26487E+00   3.03746E-01   7.00766E-06   0.00000E+00   0.00000E+00   1.05385E-01   1.98354E-01
+
+ FLUX DISADVANTAGE FACTOR =   1.03600E+00
+
+ G R O U P   :   7
+ REGION   AVERAGE         NTOT0       ABSORPTION     NUSIGF        FISSION          SCATTERING X-S
+           FLUX            X-S           X-S          X-S          SPECTRUM  WITHIN GROUP  OUT OF GROUP
+    1   1.56270E+00   4.17757E-01   3.41954E-03   2.15398E-03   6.50787E-02   3.40898E-01   7.34394E-02
+    2   1.52642E+00   2.68492E-01   5.31855E-04   0.00000E+00   0.00000E+00   2.55543E-01   1.24171E-02
+    3   1.49210E+00   4.38225E-01   1.37281E-05   0.00000E+00   0.00000E+00   1.56367E-01   2.81845E-01
+
+ FLUX DISADVANTAGE FACTOR =   1.02845E+00
+
+ G R O U P   :   8
+ REGION   AVERAGE         NTOT0       ABSORPTION     NUSIGF        FISSION          SCATTERING X-S
+           FLUX            X-S           X-S          X-S          SPECTRUM  WITHIN GROUP  OUT OF GROUP
+    1   1.47254E+00   3.45763E-01   3.81116E-03   2.30580E-03   3.40994E-02   2.91978E-01   4.99739E-02
+    2   1.43952E+00   3.04683E-01   5.38503E-04   0.00000E+00   0.00000E+00   2.89839E-01   1.43058E-02
+    3   1.40916E+00   4.68594E-01   1.63651E-05   0.00000E+00   0.00000E+00   1.42367E-01   3.26211E-01
+
+ FLUX DISADVANTAGE FACTOR =   1.02710E+00
+
+ G R O U P   :   9
+ REGION   AVERAGE         NTOT0       ABSORPTION     NUSIGF        FISSION          SCATTERING X-S
+           FLUX            X-S           X-S          X-S          SPECTRUM  WITHIN GROUP  OUT OF GROUP
+    1   1.10647E+00   3.83951E-01   4.57628E-03   2.56476E-03   1.71476E-02   3.26994E-01   5.23811E-02
+    2   1.09111E+00   3.51369E-01   5.88469E-04   0.00000E+00   0.00000E+00   3.35140E-01   1.56397E-02
+    3   1.07641E+00   5.68627E-01   2.09830E-05   0.00000E+00   0.00000E+00   1.64041E-01   4.04565E-01
+
+ FLUX DISADVANTAGE FACTOR =   1.01691E+00
+
+ G R O U P   :  10
+ REGION   AVERAGE         NTOT0       ABSORPTION     NUSIGF        FISSION          SCATTERING X-S
+           FLUX            X-S           X-S          X-S          SPECTRUM  WITHIN GROUP  OUT OF GROUP
+    1   8.98224E-01   4.14457E-01   5.75105E-03   2.82037E-03   8.44998E-03   3.56270E-01   5.24353E-02
+    2   8.90698E-01   3.86808E-01   6.34580E-04   0.00000E+00   0.00000E+00   3.68818E-01   1.73554E-02
+    3   8.83649E-01   6.69139E-01   2.61743E-05   0.00000E+00   0.00000E+00   1.86534E-01   4.82579E-01
+
+ FLUX DISADVANTAGE FACTOR =   1.01004E+00
+
+ G R O U P   :  11
+ REGION   AVERAGE         NTOT0       ABSORPTION     NUSIGF        FISSION          SCATTERING X-S
+           FLUX            X-S           X-S          X-S          SPECTRUM  WITHIN GROUP  OUT OF GROUP
+    1   7.63597E-01   4.41649E-01   8.40539E-03   3.17413E-03   4.07862E-03   3.86615E-01   4.66287E-02
+    2   7.59602E-01   4.40605E-01   1.01491E-03   0.00000E+00   0.00000E+00   4.03667E-01   3.59228E-02
+    3   7.57743E-01   7.59014E-01   3.32983E-05   0.00000E+00   0.00000E+00   2.06363E-01   5.52618E-01
+
+ FLUX DISADVANTAGE FACTOR =   1.00487E+00
+
+ G R O U P   :  12
+ REGION   AVERAGE         NTOT0       ABSORPTION     NUSIGF        FISSION          SCATTERING X-S
+           FLUX            X-S           X-S          X-S          SPECTRUM  WITHIN GROUP  OUT OF GROUP
+    1   6.92327E-01   4.62322E-01   1.10154E-02   3.53663E-03   1.98644E-03   4.06344E-01   4.49632E-02
+    2   6.92145E-01   3.50207E-01   1.10802E-03   0.00000E+00   0.00000E+00   3.36233E-01   1.28666E-02
+    3   6.89428E-01   8.31260E-01   4.30909E-05   0.00000E+00   0.00000E+00   2.22797E-01   6.08420E-01
+
+ FLUX DISADVANTAGE FACTOR =   1.00235E+00
+
+ G R O U P   :  13
+ REGION   AVERAGE         NTOT0       ABSORPTION     NUSIGF        FISSION          SCATTERING X-S
+           FLUX            X-S           X-S          X-S          SPECTRUM  WITHIN GROUP  OUT OF GROUP
+    1   6.34101E-01   4.80453E-01   1.32508E-02   4.07024E-03   9.93700E-04   4.20740E-01   4.64624E-02
+    2   6.34750E-01   4.68169E-01   1.30117E-03   0.00000E+00   0.00000E+00   4.54124E-01   1.27435E-02
+    3   6.35251E-01   8.84751E-01   5.58949E-05   0.00000E+00   0.00000E+00   2.33678E-01   6.51017E-01
+
+ FLUX DISADVANTAGE FACTOR =   9.98881E-01
+
+ G R O U P   :  14
+ REGION   AVERAGE         NTOT0       ABSORPTION     NUSIGF        FISSION          SCATTERING X-S
+           FLUX            X-S           X-S          X-S          SPECTRUM  WITHIN GROUP  OUT OF GROUP
+    1   5.99667E-01   4.86099E-01   1.58552E-02   5.01541E-03   4.90146E-04   4.23640E-01   4.66038E-02
+    2   6.01032E-01   3.48159E-01   1.80178E-03   0.00000E+00   0.00000E+00   3.30541E-01   1.58156E-02
+    3   6.02487E-01   9.21638E-01   7.25565E-05   0.00000E+00   0.00000E+00   2.41543E-01   6.80023E-01
+
+ FLUX DISADVANTAGE FACTOR =   9.97145E-01
+
+ G R O U P   :  15
+ REGION   AVERAGE         NTOT0       ABSORPTION     NUSIGF        FISSION          SCATTERING X-S
+           FLUX            X-S           X-S          X-S          SPECTRUM  WITHIN GROUP  OUT OF GROUP
+    1   5.76200E-01   4.97717E-01   1.96093E-02   5.78778E-03   2.16738E-04   4.31070E-01   4.70374E-02
+    2   5.78459E-01   4.44797E-01   3.57038E-03   0.00000E+00   0.00000E+00   4.26441E-01   1.47852E-02
+    3   5.80495E-01   9.45979E-01   9.40001E-05   0.00000E+00   0.00000E+00   2.46433E-01   6.99452E-01
+
+ FLUX DISADVANTAGE FACTOR =   9.95446E-01
+
+ G R O U P   :  16
+ REGION   AVERAGE         NTOT0       ABSORPTION     NUSIGF        FISSION          SCATTERING X-S
+           FLUX            X-S           X-S          X-S          SPECTRUM  WITHIN GROUP  OUT OF GROUP
+    1   5.08040E-01   5.09846E-01   2.17544E-02   7.49787E-03   9.88816E-05   4.36304E-01   5.17876E-02
+    2   5.10402E-01   4.26593E-01   6.34936E-03   0.00000E+00   0.00000E+00   4.09437E-01   1.08065E-02
+    3   5.12389E-01   9.60991E-01   1.19997E-04   0.00000E+00   0.00000E+00   2.32392E-01   7.28479E-01
+
+ FLUX DISADVANTAGE FACTOR =   9.94757E-01
+
+ G R O U P   :  17
+ REGION   AVERAGE         NTOT0       ABSORPTION     NUSIGF        FISSION          SCATTERING X-S
+           FLUX            X-S           X-S          X-S          SPECTRUM  WITHIN GROUP  OUT OF GROUP
+    1   4.92840E-01   5.29392E-01   2.87307E-02   9.35810E-03   5.20617E-05   4.48270E-01   5.23908E-02
+    2   4.95802E-01   4.72285E-01   3.65398E-03   0.00000E+00   0.00000E+00   4.46971E-01   2.16600E-02
+    3   4.99267E-01   9.70208E-01   1.51408E-04   0.00000E+00   0.00000E+00   2.34356E-01   7.35701E-01
+
+ FLUX DISADVANTAGE FACTOR =   9.92155E-01
+
+ G R O U P   :  18
+ REGION   AVERAGE         NTOT0       ABSORPTION     NUSIGF        FISSION          SCATTERING X-S
+           FLUX            X-S           X-S          X-S          SPECTRUM  WITHIN GROUP  OUT OF GROUP
+    1   4.88285E-01   5.05457E-01   2.88884E-02   1.06962E-02   2.77341E-05   4.24731E-01   5.18373E-02
+    2   4.91627E-01   3.09846E-01   4.38053E-03   0.00000E+00   0.00000E+00   2.94161E-01   1.13039E-02
+    3   4.93923E-01   9.76209E-01   1.90604E-04   0.00000E+00   0.00000E+00   2.35639E-01   7.40379E-01
+
+ FLUX DISADVANTAGE FACTOR =   9.92877E-01
+
+ G R O U P   :  19
+ REGION   AVERAGE         NTOT0       ABSORPTION     NUSIGF        FISSION          SCATTERING X-S
+           FLUX            X-S           X-S          X-S          SPECTRUM  WITHIN GROUP  OUT OF GROUP
+    1   4.76202E-01   5.13643E-01   3.91959E-02   1.39384E-02   1.48588E-05   4.23553E-01   5.08943E-02
+    2   4.80356E-01   2.47670E-01   3.31567E-04   0.00000E+00   0.00000E+00   2.34781E-01   1.25575E-02
+    3   4.83788E-01   9.80100E-01   2.39531E-04   0.00000E+00   0.00000E+00   2.36455E-01   7.43405E-01
+
+ FLUX DISADVANTAGE FACTOR =   9.90279E-01
+
+ G R O U P   :  20
+ REGION   AVERAGE         NTOT0       ABSORPTION     NUSIGF        FISSION          SCATTERING X-S
+           FLUX            X-S           X-S          X-S          SPECTRUM  WITHIN GROUP  OUT OF GROUP
+    1   9.16081E-01   4.99687E-01   4.99003E-02   2.13530E-02   1.24487E-05   4.23755E-01   2.60315E-02
+    2   9.26729E-01   2.81559E-01   2.70232E-03   0.00000E+00   0.00000E+00   2.72107E-01   6.75013E-03
+    3   9.35773E-01   9.83459E-01   3.39796E-04   0.00000E+00   0.00000E+00   3.79832E-01   6.03288E-01
+
+ FLUX DISADVANTAGE FACTOR =   9.86944E-01
+
+ G R O U P   :  21
+ REGION   AVERAGE         NTOT0       ABSORPTION     NUSIGF        FISSION          SCATTERING X-S
+           FLUX            X-S           X-S          X-S          SPECTRUM  WITHIN GROUP  OUT OF GROUP
+    1   8.69243E-01   5.55116E-01   6.29860E-02   3.29906E-02   3.80024E-06   4.66449E-01   2.56809E-02
+    2   8.81425E-01   3.36313E-01   1.78104E-02   0.00000E+00   0.00000E+00   3.11783E-01   6.72012E-03
+    3   8.93452E-01   9.85799E-01   5.35507E-04   0.00000E+00   0.00000E+00   3.80665E-01   6.04599E-01
+
+ FLUX DISADVANTAGE FACTOR =   9.83265E-01
+
+ G R O U P   :  22
+ REGION   AVERAGE         NTOT0       ABSORPTION     NUSIGF        FISSION          SCATTERING X-S
+           FLUX            X-S           X-S          X-S          SPECTRUM  WITHIN GROUP  OUT OF GROUP
+    1   6.12624E-01   5.70597E-01   9.21365E-02   3.97497E-02   1.02829E-06   4.43981E-01   3.44796E-02
+    2   6.25925E-01   2.80463E-01   1.58823E-03   0.00000E+00   0.00000E+00   2.69761E-01   9.11329E-03
+    3   6.36642E-01   9.86917E-01   7.94136E-04   0.00000E+00   0.00000E+00   3.15946E-01   6.70177E-01
+
+ FLUX DISADVANTAGE FACTOR =   9.76385E-01
+
+ G R O U P   :  23
+ REGION   AVERAGE         NTOT0       ABSORPTION     NUSIGF        FISSION          SCATTERING X-S
+           FLUX            X-S           X-S          X-S          SPECTRUM  WITHIN GROUP  OUT OF GROUP
+    1   3.94158E-01   5.49441E-01   9.61691E-02   6.84479E-02   3.39369E-07   4.01201E-01   5.20710E-02
+    2   4.03113E-01   2.81202E-01   7.84404E-04   0.00000E+00   0.00000E+00   2.66638E-01   1.37792E-02
+    3   4.10321E-01   9.87540E-01   1.05148E-03   0.00000E+00   0.00000E+00   2.37831E-01   7.48657E-01
+
+ FLUX DISADVANTAGE FACTOR =   9.75326E-01
+
+ G R O U P   :  24
+ REGION   AVERAGE         NTOT0       ABSORPTION     NUSIGF        FISSION          SCATTERING X-S
+           FLUX            X-S           X-S          X-S          SPECTRUM  WITHIN GROUP  OUT OF GROUP
+    1   4.37624E-01   6.71505E-01   1.56934E-01   7.06494E-02   2.29963E-07   4.72973E-01   4.15978E-02
+    2   4.53987E-01   2.83098E-01   1.15117E-03   0.00000E+00   0.00000E+00   2.70606E-01   1.13406E-02
+    3   4.66730E-01   9.88110E-01   1.35332E-03   0.00000E+00   0.00000E+00   2.74150E-01   7.12607E-01
+
+ FLUX DISADVANTAGE FACTOR =   9.60527E-01
+
+ G R O U P   :  25
+ REGION   AVERAGE         NTOT0       ABSORPTION     NUSIGF        FISSION          SCATTERING X-S
+           FLUX            X-S           X-S          X-S          SPECTRUM  WITHIN GROUP  OUT OF GROUP
+    1   3.95528E-01   6.21127E-01   2.07287E-01   8.61080E-02   1.21746E-07   3.72713E-01   4.11266E-02
+    2   4.15074E-01   2.83328E-01   3.39371E-04   0.00000E+00   0.00000E+00   2.71622E-01   1.13668E-02
+    3   4.30429E-01   9.88869E-01   1.78332E-03   0.00000E+00   0.00000E+00   2.74223E-01   7.12863E-01
+
+ FLUX DISADVANTAGE FACTOR =   9.48317E-01
+
+ G R O U P   :  26
+ REGION   AVERAGE         NTOT0       ABSORPTION     NUSIGF        FISSION          SCATTERING X-S
+           FLUX            X-S           X-S          X-S          SPECTRUM  WITHIN GROUP  OUT OF GROUP
+    1   3.75518E-01   4.37014E-01   6.46304E-02   6.63661E-02   5.91722E-08   3.24786E-01   4.75976E-02
+    2   3.81560E-01   2.84042E-01   4.34662E-04   0.00000E+00   0.00000E+00   2.70550E-01   1.30575E-02
+    3   3.86629E-01   9.89815E-01   2.30701E-03   0.00000E+00   0.00000E+00   2.48863E-01   7.38646E-01
+
+ FLUX DISADVANTAGE FACTOR =   9.82106E-01
+
+ G R O U P   :  27
+ REGION   AVERAGE         NTOT0       ABSORPTION     NUSIGF        FISSION          SCATTERING X-S
+           FLUX            X-S           X-S          X-S          SPECTRUM  WITHIN GROUP  OUT OF GROUP
+    1   5.63525E-01   6.22774E-01   2.38177E-01   6.38531E-02   5.29341E-08   3.59236E-01   2.53602E-02
+    2   5.95390E-01   2.86460E-01   2.32467E-03   0.00000E+00   0.00000E+00   2.77182E-01   6.95340E-03
+    3   6.20577E-01   9.91796E-01   3.28227E-03   0.00000E+00   0.00000E+00   3.81756E-01   6.06758E-01
+
+ FLUX DISADVANTAGE FACTOR =   9.41165E-01
+
+ G R O U P   :  28
+ REGION   AVERAGE         NTOT0       ABSORPTION     NUSIGF        FISSION          SCATTERING X-S
+           FLUX            X-S           X-S          X-S          SPECTRUM  WITHIN GROUP  OUT OF GROUP
+    1   1.39200E-01   4.13847E-01   4.52247E-02   4.64560E-02   0.00000E+00   2.62650E-01   1.05972E-01
+    2   1.40560E-01   2.84911E-01   7.70508E-04   0.00000E+00   0.00000E+00   2.44115E-01   4.00255E-02
+    3   1.41737E-01   1.00404E+00   4.28620E-03   0.00000E+00   0.00000E+00   1.47294E-01   8.52456E-01
+
+ FLUX DISADVANTAGE FACTOR =   9.88917E-01
+
+ G R O U P   :  29
+ REGION   AVERAGE         NTOT0       ABSORPTION     NUSIGF        FISSION          SCATTERING X-S
+           FLUX            X-S           X-S          X-S          SPECTRUM  WITHIN GROUP  OUT OF GROUP
+    1   1.72190E-01   4.06390E-01   3.26887E-02   4.02707E-02   0.00000E+00   2.72822E-01   1.00879E-01
+    2   1.73786E-01   2.85183E-01   9.67515E-04   0.00000E+00   0.00000E+00   2.42199E-01   4.20161E-02
+    3   1.75200E-01   1.00755E+00   4.77283E-03   0.00000E+00   0.00000E+00   1.77142E-01   8.25634E-01
+
+ FLUX DISADVANTAGE FACTOR =   9.89376E-01
+
+ G R O U P   :  30
+ REGION   AVERAGE         NTOT0       ABSORPTION     NUSIGF        FISSION          SCATTERING X-S
+           FLUX            X-S           X-S          X-S          SPECTRUM  WITHIN GROUP  OUT OF GROUP
+    1   1.58424E-01   3.98793E-01   2.14272E-02   1.93989E-02   0.00000E+00   2.67238E-01   1.10128E-01
+    2   1.59143E-01   2.87669E-01   2.76078E-03   0.00000E+00   0.00000E+00   2.35891E-01   4.90171E-02
+    3   1.59864E-01   1.01212E+00   5.34453E-03   0.00000E+00   0.00000E+00   1.71992E-01   8.34783E-01
+
+ FLUX DISADVANTAGE FACTOR =   9.94483E-01
+
+ G R O U P   :  31
+ REGION   AVERAGE         NTOT0       ABSORPTION     NUSIGF        FISSION          SCATTERING X-S
+           FLUX            X-S           X-S          X-S          SPECTRUM  WITHIN GROUP  OUT OF GROUP
+    1   2.51421E-01   4.08774E-01   2.85721E-02   2.69228E-02   0.00000E+00   2.99053E-01   8.11485E-02
+    2   2.53007E-01   2.85528E-01   1.22947E-03   0.00000E+00   0.00000E+00   2.53842E-01   3.04571E-02
+    3   2.54259E-01   1.01935E+00   6.13641E-03   0.00000E+00   0.00000E+00   2.45083E-01   7.68134E-01
+
+ FLUX DISADVANTAGE FACTOR =   9.93080E-01
+
+ G R O U P   :  32
+ REGION   AVERAGE         NTOT0       ABSORPTION     NUSIGF        FISSION          SCATTERING X-S
+           FLUX            X-S           X-S          X-S          SPECTRUM  WITHIN GROUP  OUT OF GROUP
+    1   1.07231E-01   4.11403E-01   2.92462E-02   3.36330E-02   0.00000E+00   2.22790E-01   1.59367E-01
+    2   1.07998E-01   2.85780E-01   1.45551E-03   0.00000E+00   0.00000E+00   2.03396E-01   8.09288E-02
+    3   1.08760E-01   1.02730E+00   6.91467E-03   0.00000E+00   0.00000E+00   1.51460E-01   8.68925E-01
+
+ FLUX DISADVANTAGE FACTOR =   9.91366E-01
+
+ G R O U P   :  33
+ REGION   AVERAGE         NTOT0       ABSORPTION     NUSIGF        FISSION          SCATTERING X-S
+           FLUX            X-S           X-S          X-S          SPECTRUM  WITHIN GROUP  OUT OF GROUP
+    1   8.97257E-02   4.48631E-01   6.55584E-02   9.32442E-02   0.00000E+00   2.03924E-01   1.79149E-01
+    2   9.10904E-02   2.86733E-01   2.33946E-03   0.00000E+00   0.00000E+00   1.95145E-01   8.92489E-02
+    3   9.22024E-02   1.03325E+00   7.38746E-03   0.00000E+00   0.00000E+00   1.41690E-01   8.84176E-01
+
+ FLUX DISADVANTAGE FACTOR =   9.83265E-01
+
+ G R O U P   :  34
+ REGION   AVERAGE         NTOT0       ABSORPTION     NUSIGF        FISSION          SCATTERING X-S
+           FLUX            X-S           X-S          X-S          SPECTRUM  WITHIN GROUP  OUT OF GROUP
+    1   1.71627E-02   4.89670E-01   1.06316E-01   1.74486E-01   0.00000E+00   6.76505E-02   3.15704E-01
+    2   1.74893E-02   2.92249E-01   7.67192E-03   0.00000E+00   0.00000E+00   6.22868E-02   2.22291E-01
+    3   1.77589E-02   1.03676E+00   7.66178E-03   0.00000E+00   0.00000E+00   4.21744E-02   9.86921E-01
+
+ FLUX DISADVANTAGE FACTOR =   9.79043E-01
+
+ G R O U P   :  35
+ REGION   AVERAGE         NTOT0       ABSORPTION     NUSIGF        FISSION          SCATTERING X-S
+           FLUX            X-S           X-S          X-S          SPECTRUM  WITHIN GROUP  OUT OF GROUP
+    1   1.68695E-02   4.88041E-01   1.04647E-01   1.76265E-01   0.00000E+00   6.53920E-02   3.18002E-01
+    2   1.72015E-02   2.95333E-01   1.06610E-02   0.00000E+00   0.00000E+00   6.01287E-02   2.24543E-01
+    3   1.74881E-02   1.03739E+00   7.75228E-03   0.00000E+00   0.00000E+00   4.19070E-02   9.87735E-01
+
+ FLUX DISADVANTAGE FACTOR =   9.77948E-01
+
+ G R O U P   :  36
+ REGION   AVERAGE         NTOT0       ABSORPTION     NUSIGF        FISSION          SCATTERING X-S
+           FLUX            X-S           X-S          X-S          SPECTRUM  WITHIN GROUP  OUT OF GROUP
+    1   1.73149E-02   4.80089E-01   9.66345E-02   1.65350E-01   0.00000E+00   6.60869E-02   3.17368E-01
+    2   1.76451E-02   2.95370E-01   1.06996E-02   0.00000E+00   0.00000E+00   6.08151E-02   2.23855E-01
+    3   1.79379E-02   1.03895E+00   7.84482E-03   0.00000E+00   0.00000E+00   4.29233E-02   9.88183E-01
+
+ FLUX DISADVANTAGE FACTOR =   9.78379E-01
+
+ G R O U P   :  37
+ REGION   AVERAGE         NTOT0       ABSORPTION     NUSIGF        FISSION          SCATTERING X-S
+           FLUX            X-S           X-S          X-S          SPECTRUM  WITHIN GROUP  OUT OF GROUP
+    1   1.79100E-02   4.70217E-01   8.66729E-02   1.49436E-01   0.00000E+00   7.09966E-02   3.12548E-01
+    2   1.82201E-02   2.92404E-01   7.82446E-03   0.00000E+00   0.00000E+00   6.61103E-02   2.18470E-01
+    3   1.84821E-02   1.04141E+00   7.94089E-03   0.00000E+00   0.00000E+00   4.38936E-02   9.89575E-01
+
+ FLUX DISADVANTAGE FACTOR =   9.80715E-01
+
+ G R O U P   :  38
+ REGION   AVERAGE         NTOT0       ABSORPTION     NUSIGF        FISSION          SCATTERING X-S
+           FLUX            X-S           X-S          X-S          SPECTRUM  WITHIN GROUP  OUT OF GROUP
+    1   1.77072E-02   4.61568E-01   7.79157E-02   1.34539E-01   0.00000E+00   6.55010E-02   3.18152E-01
+    2   1.80025E-02   2.89590E-01   5.09485E-03   0.00000E+00   0.00000E+00   6.02648E-02   2.24230E-01
+    3   1.82598E-02   1.04225E+00   8.03944E-03   0.00000E+00   0.00000E+00   4.35805E-02   9.90631E-01
+
+ FLUX DISADVANTAGE FACTOR =   9.81178E-01
+
+ G R O U P   :  39
+ REGION   AVERAGE         NTOT0       ABSORPTION     NUSIGF        FISSION          SCATTERING X-S
+           FLUX            X-S           X-S          X-S          SPECTRUM  WITHIN GROUP  OUT OF GROUP
+    1   1.75743E-02   4.55123E-01   7.13550E-02   1.22970E-01   0.00000E+00   6.59918E-02   3.17776E-01
+    2   1.78433E-02   2.88009E-01   3.55876E-03   0.00000E+00   0.00000E+00   6.10256E-02   2.23424E-01
+    3   1.80713E-02   1.04282E+00   8.13463E-03   0.00000E+00   0.00000E+00   4.32039E-02   9.91480E-01
+
+ FLUX DISADVANTAGE FACTOR =   9.82889E-01
+
+ G R O U P   :  40
+ REGION   AVERAGE         NTOT0       ABSORPTION     NUSIGF        FISSION          SCATTERING X-S
+           FLUX            X-S           X-S          X-S          SPECTRUM  WITHIN GROUP  OUT OF GROUP
+    1   1.80720E-02   4.50511E-01   6.66230E-02   1.14409E-01   0.00000E+00   6.48559E-02   3.19033E-01
+    2   1.83363E-02   2.87221E-01   2.78970E-03   0.00000E+00   0.00000E+00   5.96744E-02   2.24757E-01
+    3   1.85640E-02   1.04443E+00   8.23412E-03   0.00000E+00   0.00000E+00   4.42430E-02   9.91956E-01
+
+ FLUX DISADVANTAGE FACTOR =   9.83532E-01
+
+ G R O U P   :  41
+ REGION   AVERAGE         NTOT0       ABSORPTION     NUSIGF        FISSION          SCATTERING X-S
+           FLUX            X-S           X-S          X-S          SPECTRUM  WITHIN GROUP  OUT OF GROUP
+    1   1.70550E-02   4.47362E-01   6.33547E-02   1.08382E-01   0.00000E+00   6.11045E-02   3.22903E-01
+    2   1.72895E-02   2.86824E-01   2.39862E-03   0.00000E+00   0.00000E+00   5.62390E-02   2.28186E-01
+    3   1.74881E-02   1.04691E+00   8.33260E-03   0.00000E+00   0.00000E+00   4.21373E-02   9.96439E-01
+
+ FLUX DISADVANTAGE FACTOR =   9.84609E-01
+
+ G R O U P   :  42
+ REGION   AVERAGE         NTOT0       ABSORPTION     NUSIGF        FISSION          SCATTERING X-S
+           FLUX            X-S           X-S          X-S          SPECTRUM  WITHIN GROUP  OUT OF GROUP
+    1   3.22617E-02   4.44597E-01   6.04290E-02   1.02886E-01   0.00000E+00   1.03995E-01   2.80172E-01
+    2   3.26853E-02   2.86544E-01   2.11862E-03   0.00000E+00   0.00000E+00   9.70031E-02   1.87422E-01
+    3   3.30390E-02   1.04841E+00   8.47026E-03   0.00000E+00   0.00000E+00   7.01486E-02   9.69788E-01
+
+ FLUX DISADVANTAGE FACTOR =   9.85378E-01
+
+ G R O U P   :  43
+ REGION   AVERAGE         NTOT0       ABSORPTION     NUSIGF        FISSION          SCATTERING X-S
+           FLUX            X-S           X-S          X-S          SPECTRUM  WITHIN GROUP  OUT OF GROUP
+    1   5.15455E-02   4.42446E-01   5.80204E-02   9.82310E-02   0.00000E+00   1.42456E-01   2.41969E-01
+    2   5.21925E-02   2.86353E-01   1.91829E-03   0.00000E+00   0.00000E+00   1.32234E-01   1.52201E-01
+    3   5.27376E-02   1.05208E+00   8.71006E-03   0.00000E+00   0.00000E+00   1.00805E-01   9.42570E-01
+
+ FLUX DISADVANTAGE FACTOR =   9.85961E-01
+
+ G R O U P   :  44
+ REGION   AVERAGE         NTOT0       ABSORPTION     NUSIGF        FISSION          SCATTERING X-S
+           FLUX            X-S           X-S          X-S          SPECTRUM  WITHIN GROUP  OUT OF GROUP
+    1   6.55251E-02   4.42291E-01   5.75228E-02   9.71101E-02   0.00000E+00   1.59293E-01   2.25476E-01
+    2   6.63478E-02   2.86277E-01   1.83376E-03   0.00000E+00   0.00000E+00   1.47354E-01   1.37089E-01
+    3   6.70530E-02   1.05712E+00   9.05314E-03   0.00000E+00   0.00000E+00   1.21610E-01   9.26453E-01
+
+ FLUX DISADVANTAGE FACTOR =   9.85858E-01
+
+ G R O U P   :  45
+ REGION   AVERAGE         NTOT0       ABSORPTION     NUSIGF        FISSION          SCATTERING X-S
+           FLUX            X-S           X-S          X-S          SPECTRUM  WITHIN GROUP  OUT OF GROUP
+    1   1.72013E-01   4.47021E-01   6.16181E-02   1.04679E-01   0.00000E+00   2.42866E-01   1.42537E-01
+    2   1.74238E-01   2.86317E-01   1.85960E-03   0.00000E+00   0.00000E+00   2.14392E-01   7.00654E-02
+    3   1.76294E-01   1.06890E+00   9.78123E-03   0.00000E+00   0.00000E+00   2.41208E-01   8.17914E-01
+
+ FLUX DISADVANTAGE FACTOR =   9.84971E-01
+
+ G R O U P   :  46
+ REGION   AVERAGE         NTOT0       ABSORPTION     NUSIGF        FISSION          SCATTERING X-S
+           FLUX            X-S           X-S          X-S          SPECTRUM  WITHIN GROUP  OUT OF GROUP
+    1   1.79699E-01   4.60348E-01   7.41132E-02   1.28464E-01   0.00000E+00   2.36194E-01   1.50041E-01
+    2   1.82524E-01   2.86497E-01   2.01036E-03   0.00000E+00   0.00000E+00   2.15489E-01   6.89983E-02
+    3   1.84742E-01   1.09266E+00   1.09293E-02   0.00000E+00   0.00000E+00   2.56674E-01   8.25059E-01
+
+ FLUX DISADVANTAGE FACTOR =   9.82964E-01
+
+ G R O U P   :  47
+ REGION   AVERAGE         NTOT0       ABSORPTION     NUSIGF        FISSION          SCATTERING X-S
+           FLUX            X-S           X-S          X-S          SPECTRUM  WITHIN GROUP  OUT OF GROUP
+    1   1.88596E-01   4.84412E-01   9.74135E-02   1.72747E-01   0.00000E+00   2.33473E-01   1.53525E-01
+    2   1.92319E-01   2.86750E-01   2.22104E-03   0.00000E+00   0.00000E+00   2.08767E-01   7.57614E-02
+    3   1.95494E-01   1.12913E+00   1.22282E-02   0.00000E+00   0.00000E+00   2.70294E-01   8.46604E-01
+
+ FLUX DISADVANTAGE FACTOR =   9.77991E-01
+
+ G R O U P   :  48
+ REGION   AVERAGE         NTOT0       ABSORPTION     NUSIGF        FISSION          SCATTERING X-S
+           FLUX            X-S           X-S          X-S          SPECTRUM  WITHIN GROUP  OUT OF GROUP
+    1   1.20586E-01   5.17748E-01   1.30161E-01   2.33529E-01   0.00000E+00   1.76599E-01   2.10988E-01
+    2   1.23715E-01   2.86983E-01   2.41250E-03   0.00000E+00   0.00000E+00   1.63504E-01   1.21067E-01
+    3   1.26288E-01   1.16592E+00   1.33534E-02   0.00000E+00   0.00000E+00   1.96104E-01   9.56460E-01
+
+ FLUX DISADVANTAGE FACTOR =   9.71681E-01
+
+ G R O U P   :  49
+ REGION   AVERAGE         NTOT0       ABSORPTION     NUSIGF        FISSION          SCATTERING X-S
+           FLUX            X-S           X-S          X-S          SPECTRUM  WITHIN GROUP  OUT OF GROUP
+    1   8.53311E-02   5.47335E-01   1.59402E-01   2.85917E-01   0.00000E+00   1.31220E-01   2.56714E-01
+    2   8.80702E-02   2.87140E-01   2.54443E-03   0.00000E+00   0.00000E+00   1.21333E-01   1.63262E-01
+    3   9.03428E-02   1.19006E+00   1.41145E-02   0.00000E+00   0.00000E+00   1.48223E-01   1.02772E+00
+
+ FLUX DISADVANTAGE FACTOR =   9.65079E-01
+
+ G R O U P   :  50
+ REGION   AVERAGE         NTOT0       ABSORPTION     NUSIGF        FISSION          SCATTERING X-S
+           FLUX            X-S           X-S          X-S          SPECTRUM  WITHIN GROUP  OUT OF GROUP
+    1   6.42362E-02   5.67012E-01   1.78858E-01   3.19395E-01   0.00000E+00   9.92811E-02   2.88873E-01
+    2   6.65647E-02   2.87254E-01   2.64092E-03   0.00000E+00   0.00000E+00   9.28335E-02   1.91779E-01
+    3   6.84713E-02   1.21044E+00   1.46676E-02   0.00000E+00   0.00000E+00   1.16216E-01   1.07956E+00
+
+ FLUX DISADVANTAGE FACTOR =   9.60944E-01
+
+ G R O U P   :  51
+ REGION   AVERAGE         NTOT0       ABSORPTION     NUSIGF        FISSION          SCATTERING X-S
+           FLUX            X-S           X-S          X-S          SPECTRUM  WITHIN GROUP  OUT OF GROUP
+    1   7.20412E-02   5.78326E-01   1.89984E-01   3.37277E-01   0.00000E+00   1.02817E-01   2.85525E-01
+    2   7.48253E-02   2.87367E-01   2.72879E-03   0.00000E+00   0.00000E+00   9.60897E-02   1.88548E-01
+    3   7.71020E-02   1.22798E+00   1.51685E-02   0.00000E+00   0.00000E+00   1.23999E-01   1.08881E+00
+
+ FLUX DISADVANTAGE FACTOR =   9.58489E-01
+
+ G R O U P   :  52
+ REGION   AVERAGE         NTOT0       ABSORPTION     NUSIGF        FISSION          SCATTERING X-S
+           FLUX            X-S           X-S          X-S          SPECTRUM  WITHIN GROUP  OUT OF GROUP
+    1   1.27715E-01   5.81904E-01   1.93290E-01   3.40436E-01   0.00000E+00   1.43655E-01   2.44960E-01
+    2   1.32801E-01   2.87521E-01   2.85492E-03   0.00000E+00   0.00000E+00   1.34433E-01   1.50233E-01
+    3   1.36975E-01   1.25203E+00   1.58848E-02   0.00000E+00   0.00000E+00   1.84607E-01   1.05154E+00
+
+ FLUX DISADVANTAGE FACTOR =   9.57223E-01
+
+ G R O U P   :  53
+ REGION   AVERAGE         NTOT0       ABSORPTION     NUSIGF        FISSION          SCATTERING X-S
+           FLUX            X-S           X-S          X-S          SPECTRUM  WITHIN GROUP  OUT OF GROUP
+    1   1.60094E-01   5.76250E-01   1.87234E-01   3.28005E-01   0.00000E+00   1.49196E-01   2.39819E-01
+    2   1.66401E-01   2.87737E-01   3.03001E-03   0.00000E+00   0.00000E+00   1.39243E-01   1.45464E-01
+    3   1.71647E-01   1.28494E+00   1.68767E-02   0.00000E+00   0.00000E+00   2.06442E-01   1.06162E+00
+
+ FLUX DISADVANTAGE FACTOR =   9.57440E-01
+
+ G R O U P   :  54
+ REGION   AVERAGE         NTOT0       ABSORPTION     NUSIGF        FISSION          SCATTERING X-S
+           FLUX            X-S           X-S          X-S          SPECTRUM  WITHIN GROUP  OUT OF GROUP
+    1   2.84498E-01   5.72505E-01   1.82875E-01   3.21466E-01   0.00000E+00   1.88762E-01   2.00869E-01
+    2   2.95785E-01   2.88066E-01   3.28898E-03   0.00000E+00   0.00000E+00   1.73608E-01   1.11170E-01
+    3   3.05253E-01   1.33391E+00   1.83403E-02   0.00000E+00   0.00000E+00   2.96975E-01   1.01859E+00
+
+ FLUX DISADVANTAGE FACTOR =   9.57007E-01
+
+ G R O U P   :  55
+ REGION   AVERAGE         NTOT0       ABSORPTION     NUSIGF        FISSION          SCATTERING X-S
+           FLUX            X-S           X-S          X-S          SPECTRUM  WITHIN GROUP  OUT OF GROUP
+    1   3.93979E-01   5.84313E-01   1.93692E-01   3.44858E-01   0.00000E+00   2.01894E-01   1.88727E-01
+    2   4.11391E-01   2.88561E-01   3.67879E-03   0.00000E+00   0.00000E+00   1.85275E-01   9.96074E-02
+    3   4.25971E-01   1.40706E+00   2.05379E-02   0.00000E+00   0.00000E+00   3.62720E-01   1.02380E+00
+
+ FLUX DISADVANTAGE FACTOR =   9.52374E-01
+
+ G R O U P   :  56
+ REGION   AVERAGE         NTOT0       ABSORPTION     NUSIGF        FISSION          SCATTERING X-S
+           FLUX            X-S           X-S          X-S          SPECTRUM  WITHIN GROUP  OUT OF GROUP
+    1   5.28005E-01   6.17302E-01   2.25155E-01   4.07152E-01   0.00000E+00   2.18644E-01   1.73504E-01
+    2   5.56413E-01   2.89315E-01   4.25324E-03   0.00000E+00   0.00000E+00   1.98685E-01   8.63764E-02
+    3   5.80132E-01   1.51096E+00   2.37715E-02   0.00000E+00   0.00000E+00   4.65499E-01   1.02169E+00
+
+ FLUX DISADVANTAGE FACTOR =   9.42679E-01
+
+ G R O U P   :  57
+ REGION   AVERAGE         NTOT0       ABSORPTION     NUSIGF        FISSION          SCATTERING X-S
+           FLUX            X-S           X-S          X-S          SPECTRUM  WITHIN GROUP  OUT OF GROUP
+    1   3.11029E-01   6.59430E-01   2.65489E-01   4.85352E-01   0.00000E+00   1.60785E-01   2.33156E-01
+    2   3.31370E-01   2.90148E-01   4.87885E-03   0.00000E+00   0.00000E+00   1.50409E-01   1.34860E-01
+    3   3.48273E-01   1.62063E+00   2.72862E-02   0.00000E+00   0.00000E+00   3.53079E-01   1.24026E+00
+
+ FLUX DISADVANTAGE FACTOR =   9.31300E-01
+
+ G R O U P   :  58
+ REGION   AVERAGE         NTOT0       ABSORPTION     NUSIGF        FISSION          SCATTERING X-S
+           FLUX            X-S           X-S          X-S          SPECTRUM  WITHIN GROUP  OUT OF GROUP
+    1   2.11733E-01   6.95309E-01   2.99761E-01   5.51056E-01   0.00000E+00   1.28075E-01   2.67473E-01
+    2   2.27627E-01   2.90859E-01   5.39071E-03   0.00000E+00   0.00000E+00   1.20624E-01   1.64845E-01
+    3   2.40857E-01   1.70970E+00   3.01589E-02   0.00000E+00   0.00000E+00   2.99739E-01   1.37980E+00
+
+ FLUX DISADVANTAGE FACTOR =   9.21886E-01
+
+ G R O U P   :  59
+ REGION   AVERAGE         NTOT0       ABSORPTION     NUSIGF        FISSION          SCATTERING X-S
+           FLUX            X-S           X-S          X-S          SPECTRUM  WITHIN GROUP  OUT OF GROUP
+    1   1.47074E-01   7.27244E-01   3.30181E-01   6.08995E-01   0.00000E+00   1.02830E-01   2.94232E-01
+    2   1.59346E-01   2.91505E-01   5.84013E-03   0.00000E+00   0.00000E+00   9.70472E-02   1.88617E-01
+    3   1.69558E-01   1.78836E+00   3.26805E-02   0.00000E+00   0.00000E+00   2.56446E-01   1.49923E+00
+
+ FLUX DISADVANTAGE FACTOR =   9.13933E-01
+
+ G R O U P   :  60
+ REGION   AVERAGE         NTOT0       ABSORPTION     NUSIGF        FISSION          SCATTERING X-S
+           FLUX            X-S           X-S          X-S          SPECTRUM  WITHIN GROUP  OUT OF GROUP
+    1   1.28119E-01   7.58671E-01   3.60047E-01   6.65536E-01   0.00000E+00   9.92976E-02   2.99326E-01
+    2   1.39850E-01   2.92160E-01   6.28134E-03   0.00000E+00   0.00000E+00   9.37453E-02   1.92133E-01
+    3   1.49610E-01   1.86656E+00   3.51553E-02   0.00000E+00   0.00000E+00   2.62682E-01   1.56872E+00
+
+ FLUX DISADVANTAGE FACTOR =   9.06347E-01
+
+ G R O U P   :  61
+ REGION   AVERAGE         NTOT0       ABSORPTION     NUSIGF        FISSION          SCATTERING X-S
+           FLUX            X-S           X-S          X-S          SPECTRUM  WITHIN GROUP  OUT OF GROUP
+    1   1.22513E-01   7.96075E-01   3.95385E-01   7.32021E-01   0.00000E+00   1.05892E-01   2.94798E-01
+    2   1.34893E-01   2.92966E-01   6.80569E-03   0.00000E+00   0.00000E+00   9.99813E-02   1.86179E-01
+    3   1.45189E-01   1.96285E+00   3.80945E-02   0.00000E+00   0.00000E+00   2.97655E-01   1.62710E+00
+
+ FLUX DISADVANTAGE FACTOR =   8.97648E-01
+
+ G R O U P   :  62
+ REGION   AVERAGE         NTOT0       ABSORPTION     NUSIGF        FISSION          SCATTERING X-S
+           FLUX            X-S           X-S          X-S          SPECTRUM  WITHIN GROUP  OUT OF GROUP
+    1   9.97919E-02   8.41058E-01   4.37729E-01   8.11149E-01   0.00000E+00   1.02257E-01   3.01072E-01
+    2   1.11006E-01   2.93937E-01   7.43679E-03   0.00000E+00   0.00000E+00   9.65636E-02   1.89937E-01
+    3   1.20332E-01   2.08057E+00   4.16328E-02   0.00000E+00   0.00000E+00   3.07508E-01   1.73143E+00
+
+ FLUX DISADVANTAGE FACTOR =   8.87473E-01
+
+ G R O U P   :  63
+ REGION   AVERAGE         NTOT0       ABSORPTION     NUSIGF        FISSION          SCATTERING X-S
+           FLUX            X-S           X-S          X-S          SPECTRUM  WITHIN GROUP  OUT OF GROUP
+    1   6.53490E-02   8.87581E-01   4.81307E-01   8.92011E-01   0.00000E+00   8.31193E-02   3.23155E-01
+    2   7.34536E-02   2.94985E-01   8.09168E-03   0.00000E+00   0.00000E+00   7.84652E-02   2.08429E-01
+    3   8.01942E-02   2.20574E+00   4.53030E-02   0.00000E+00   0.00000E+00   2.68333E-01   1.89210E+00
+
+ FLUX DISADVANTAGE FACTOR =   8.77238E-01
+
+ G R O U P   :  64
+ REGION   AVERAGE         NTOT0       ABSORPTION     NUSIGF        FISSION          SCATTERING X-S
+           FLUX            X-S           X-S          X-S          SPECTRUM  WITHIN GROUP  OUT OF GROUP
+    1   5.90049E-02   9.37583E-01   5.27859E-01   9.77834E-01   0.00000E+00   8.91887E-02   3.20535E-01
+    2   6.70570E-02   2.96140E-01   8.79569E-03   0.00000E+00   0.00000E+00   8.42285E-02   2.03116E-01
+    3   7.37582E-02   2.34397E+00   4.92487E-02   0.00000E+00   0.00000E+00   3.04832E-01   1.98988E+00
+
+ FLUX DISADVANTAGE FACTOR =   8.66533E-01
+
+ G R O U P   :  65
+ REGION   AVERAGE         NTOT0       ABSORPTION     NUSIGF        FISSION          SCATTERING X-S
+           FLUX            X-S           X-S          X-S          SPECTRUM  WITHIN GROUP  OUT OF GROUP
+    1   5.12674E-02   1.00343E+00   5.88732E-01   1.08944E+00   0.00000E+00   9.68860E-02   3.17815E-01
+    2   5.90997E-02   2.97721E-01   9.72214E-03   0.00000E+00   0.00000E+00   9.15161E-02   1.96482E-01
+    3   6.56261E-02   2.53110E+00   5.44411E-02   0.00000E+00   0.00000E+00   3.54517E-01   2.12214E+00
+
+ FLUX DISADVANTAGE FACTOR =   8.52865E-01
+
+ G R O U P   :  66
+ REGION   AVERAGE         NTOT0       ABSORPTION     NUSIGF        FISSION          SCATTERING X-S
+           FLUX            X-S           X-S          X-S          SPECTRUM  WITHIN GROUP  OUT OF GROUP
+    1   4.20240E-02   1.09618E+00   6.73719E-01   1.24459E+00   0.00000E+00   1.07243E-01   3.15217E-01
+    2   4.94059E-02   3.00062E-01   1.10243E-02   0.00000E+00   0.00000E+00   1.01271E-01   1.87767E-01
+    3   5.55686E-02   2.79973E+00   6.17386E-02   0.00000E+00   0.00000E+00   4.27145E-01   2.31085E+00
+
+ FLUX DISADVANTAGE FACTOR =   8.34367E-01
+
+ G R O U P   :  67
+ REGION   AVERAGE         NTOT0       ABSORPTION     NUSIGF        FISSION          SCATTERING X-S
+           FLUX            X-S           X-S          X-S          SPECTRUM  WITHIN GROUP  OUT OF GROUP
+    1   3.11908E-02   1.24048E+00   8.04318E-01   1.48269E+00   0.00000E+00   1.22043E-01   3.14114E-01
+    2   3.77811E-02   3.03964E-01   1.30367E-02   0.00000E+00   0.00000E+00   1.15136E-01   1.75791E-01
+    3   4.32986E-02   3.22308E+00   7.30138E-02   0.00000E+00   0.00000E+00   5.44393E-01   2.60567E+00
+
+ FLUX DISADVANTAGE FACTOR =   8.07063E-01
+
+ G R O U P   :  68
+ REGION   AVERAGE         NTOT0       ABSORPTION     NUSIGF        FISSION          SCATTERING X-S
+           FLUX            X-S           X-S          X-S          SPECTRUM  WITHIN GROUP  OUT OF GROUP
+    1   1.88226E-02   1.51140E+00   1.04543E+00   1.92341E+00   0.00000E+00   1.46035E-01   3.19941E-01
+    2   2.40740E-02   3.12070E-01   1.67697E-02   0.00000E+00   0.00000E+00   1.37429E-01   1.57872E-01
+    3   2.84865E-02   4.01034E+00   9.39294E-02   0.00000E+00   0.00000E+00   7.71533E-01   3.14488E+00
+
+ FLUX DISADVANTAGE FACTOR =   7.59801E-01
+
+ G R O U P   :  69
+ REGION   AVERAGE         NTOT0       ABSORPTION     NUSIGF        FISSION          SCATTERING X-S
+           FLUX            X-S           X-S          X-S          SPECTRUM  WITHIN GROUP  OUT OF GROUP
+    1   5.54320E-03   2.32252E+00   1.74498E+00   3.20814E+00   0.00000E+00   1.88208E-01   3.89330E-01
+    2   8.23714E-03   3.45668E-01   2.76786E-02   0.00000E+00   0.00000E+00   1.76779E-01   1.41210E-01
+    3   1.04846E-02   6.27703E+00   1.55043E-01   0.00000E+00   0.00000E+00   1.35505E+00   4.76693E+00
+
+ FLUX DISADVANTAGE FACTOR =   6.45551E-01
+
+ POWER DENSITY (W/cc) NORMALIZED TO 1 W TOTAL POWER 
+ REGION      VOLUME       FISSION       CAPTURE         TOTAL
+    1    0.52707171    1.89727502    0.00000000    1.89727502
+    2    0.18175012    0.00000000    0.00000000    0.00000000
+    3    0.87877816    0.00000000    0.00000000    0.00000000
+
+
+ LCMLIB: CONTENT OF ACTIVE DIRECTORY '/           ' OF THE TABLE    'OUT         ':
+
+     BLOCK NAME----------    LENGTH    TYPE
+
+        1  'SIGNATURE   '         3    CHARACTER       ='L_EDIT      '
+        2  'TITLE       '        18    CHARACTER       
+        3  'STATE-VECTOR'        40    INTEGER         
+        4  'LINK.GEOM   '         3    CHARACTER       
+        5  'LAST-EDIT   '         3    CHARACTER       
+        6  'REF-CASE0001'        -1    DIRECTORY       
+        7  'REF:IMERGE  '         3    INTEGER         
+        8  'REF:MATCOD  '         3    INTEGER         
+        9  'REF:VOLUME  '         3    REAL            
+       10  'REF:IGCOND  '        69    INTEGER         
+
+
+ TOTAL NUMBER OF WORDS ON DIRECTORY '/           ' =       145
+
+->@END MODULE   : EDI:        
+-->>MODULE EDI:        :TIME SPENT=        0.005 MEMORY USAGE= 1.008E+03
+<|_LIBR := LIBRARY ;                                                      |<0119
+->@BEGIN MODULE : EQU:        
+->@DESCRIPTION  : No description available for this module                                
+->@CREDITS      : No author provided for this module                                      
+->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
+                  GNU LESSER GENERAL PUBLIC LICENSE
+
+ DRVEQU: A LCM OBJECT NAMED 'LIBRARY     ' WAS EXPORTED TO FILE '_LIBR       '.
+-->>module EQU:        :time spent=        0.114 memory usage= 0.000E+00
+->@END MODULE   : EQU:        
+<|END: ;                                                                  |<0121
+
+ normal end of execution for dragon 5  Version 5.0.5 ($Revision: 1460 $)               
+ check for warning in listing
+ before assuming your run was successful

@@ -1,0 +1,134 @@
+*----
+*  TEST CASE TCWU02
+*  17 X 17 PWR ASSEMBLY WITHOUT POISON
+*  WIMSD4 69 GROUPS LIBRARY FILE iaea FROM WLUP
+*
+*  REF: none
+*
+*----
+*  Define STRUCTURES and MODULES used
+*----
+
+
+LINKED_LIST
+  ASSMB DISCR LIBRARY LIBRARY1 CP CALC OUT DATABASE ISOT SPHGEOM MTRACK 
+  MAC ;
+SEQ_BINARY
+  TRKSPC ;
+SEQ_ASCII
+  res ;
+SEQ_ASCII
+  flx ;
+SEQ_ASCII _LIBR :: FILE './_LIB_rowland.txt' ;
+
+MODULE
+  LIB: GEO: SYBILT: MCCGT: EXCELT: BIVACT: USS: ASM: FLU: EDI: COMPO: M2T: 
+  EVO: DELETE: END: ;
+PROCEDURE assertS ;
+*----
+*  Microscopic cross sections from file iaea format WIMSD4
+*----
+LIBRARY1 := LIB: ::
+  NMIX 5 
+  CTRA NONE
+  ANIS 1
+  SUBG
+  DEPL LIB: WIMSD4 FIL: J33_172W
+  MIXS LIB: WIMSD4 FIL: J33_172W
+  MIX 1 900.0
+    O16      = '6016'   4.57642E-2
+    U234     = '234'    6.11864E-6  
+    U235     = '2235'   7.18132E-4  1
+    U238     = '8238'   2.21546E-2  1
+    U236     = '236'   3.29861E-6  
+  MIX 2 600.0
+    Zr90 = '4090'   2.18865E-02  
+    Zr91 = '4091'   4.77292E-03  
+    Zr92 = '4092'   7.29551E-03  
+    Zr94 = '4094'   7.39335E-03 
+    Zr96 = '4096'   1.19110E-03
+    Sn112 = '3112'   4.68066E-06
+    Sn114 = '3114'   3.18478E-06
+    Sn115 = '3115'   1.64064E-06
+    Sn116 = '3116'   7.01616E-05
+    Sn117 = '3117'   3.70592E-05
+    Sn118 = '3118'   1.16872E-04
+    Sn119 = '3119'   4.14504E-05
+    Sn120 = '3120'   1.57212E-04
+    Sn122 = '3122'   2.23417E-05
+    Sn124 = '3124'   2.79392E-05
+    Fe054 = '2654'   8.68307E-06
+    Fe056 = '2656'   1.36306E-04
+    Fe057 = '2657'   3.14789E-06
+    Fe058 = '2658'   4.18926E-07
+    Cr050 = '2450'   3.30121E-06
+    Cr052 = '2452'   6.36606E-05
+    Cr053 = '2453'   7.21860E-06
+    Cr054 = '2454'   1.79686E-06
+    Hf174 = '1174'   3.54138E-09
+    Hf176 = '2176'   1.16423E-07
+    Hf177 = '2177'   4.11686E-07
+    Hf178 = '2178'   6.03806E-07
+    Hf179 = '2179'   3.01460E-07
+    Hf180 = '2180'   7.76449E-07
+  MIX 3 600.0
+    H1H2O    = '3001'   0.0441707477267
+    O16H2O   = '6016'   0.0220853738633
+    B10      = '510'   9.5253405E-06
+    B11      = '511'   3.83407762E-05
+  ;
+*----
+*  Geometry ASSMB : a 17 X 17 normal PWR assembly
+*  contains  C1 : cell without fuel
+*            C2 : normal fuel cell
+*            C3 : peripheral cell
+*            C4 : corner cell
+*----
+ASSMB := GEO: :: CAR2D 1 1
+  X- REFL X+ REFL Y- REFL Y+ REFL 
+  CELL C1
+  ::: C1 := GEO: CARCEL 2 
+    MESHX 0.0 1.26 
+    MESHY 0.0 1.26 
+    RADIUS 0.0 0.4096 0.475  
+    SECT 2 0
+    MIX 1 2 3 ;
+  ;
+
+*----
+*  Self-Shielding calculation SYBIL
+*  Transport calculation      SYBIL
+*  Flux calculation for B1 homogeneous leakage
+*  Editing using SPH model for transport-diffusion
+*----
+DISCR TRKSPC := EXCELT: ASSMB ::
+  TITLE 'TCDR01: MOSTELLER BENCHMARK (EXCELL)'
+  MAXR 2000 TRAK TSPC 16 20.0 ;
+DISCR := MCCGT: DISCR TRKSPC ::
+EDIT 1 CACB 5
+AAC 80 TMT EPSI 1E-5 MCU 2500
+MAXI 1 KRYL 0 SCR 0 HDD 0.0 ;
+
+LIBRARY := USS: LIBRARY1 DISCR TRKSPC :: EDIT 0 NOTR ;
+
+CP := ASM: LIBRARY DISCR TRKSPC ::
+EDIT 2 ARM ;
+CALC := FLU: LIBRARY DISCR CP TRKSPC ::
+  TYPE K ;
+
+OUT := EDI: LIBRARY DISCR CALC ASSMB ::
+  EDIT 3 SAVE MERGE NONE 
+ * EDIT 5 MICR 10 U235 U238 Pu239
+ *   Pu240 Pu241 Pu242 U236 Am241 Am243 Sm151 COND
+ * SAVE ON FUEL
+ *   MERGE REGI 1 1 1 0 0
+  ;
+
+
+
+_LIBR := LIBRARY ;
+
+*res := DATABASE ;
+
+END: ; 
+QUIT "LIST" .
